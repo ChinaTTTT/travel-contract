@@ -352,6 +352,38 @@
   }
   .sign-counter em { font-style: normal; color: var(--green); }
 
+  .sign-bar {
+    display: flex; align-items: center; gap: 16px;
+    margin-top: 18px; flex-wrap: wrap;
+  }
+  .sync-status {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 2px; transition: all 0.4s;
+  }
+  .sync-status.synced { color: var(--green); opacity: 0.5; }
+  .sync-status.saving { color: var(--orange); opacity: 0.7; animation: syncPulse 0.8s ease-in-out infinite; }
+  .sync-status.error  { color: var(--pink); opacity: 0.8; }
+  .sync-status.loading{ color: var(--blue); opacity: 0.6; animation: syncPulse 0.8s ease-in-out infinite; }
+  @keyframes syncPulse { 0%,100%{opacity:0.4;}50%{opacity:0.9;} }
+
+  .sync-btn {
+    background: transparent; border: 1px solid rgba(240,232,248,0.08);
+    color: var(--dim); font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 2px; padding: 5px 14px; cursor: pointer;
+    transition: all 0.3s;
+  }
+  .sync-btn:hover { border-color: var(--green); color: var(--green); }
+  .sync-btn:active { transform: scale(0.95); }
+
+  .sign-slot.locked .sign-input { pointer-events: none; opacity: 0.7; }
+  .sign-slot .sign-lock-btn {
+    position: absolute; bottom: 4px; right: 4px; z-index: 2;
+    background: transparent; border: none; cursor: pointer;
+    font-size: 12px; opacity: 0.2; transition: opacity 0.3s;
+  }
+  .sign-slot:hover .sign-lock-btn { opacity: 0.5; }
+  .sign-slot .sign-lock-btn:hover { opacity: 1; }
+
   /* ═══════ EXTRAS LINK ═══════ */
   .extras-link-area {
     text-align: center; padding: 60px 8vw;
@@ -848,7 +880,11 @@
       <div class="signing-stamp">本条约经全体成员确认知悉并同意遵守</div>
     </div>
     <div class="sign-grid" id="signGrid"></div>
-    <div class="sign-counter" id="signCounter">AUTHENTICATED <em>0</em> / <em>11</em></div>
+    <div class="sign-bar">
+      <div class="sign-counter" id="signCounter">AUTHENTICATED <em>0</em> / <em>11</em></div>
+      <span class="sync-status loading" id="syncStatus">◌ LOADING…</span>
+      <button class="sync-btn" onclick="loadSignatures()" title="手动刷新">↻ SYNC</button>
+    </div>
   </div>
 </section>
 
@@ -930,26 +966,107 @@ function updateCountdown() {
 }
 updateCountdown(); setInterval(updateCountdown, 1000);
 
-/* ═══ SIGN ═══ */
+/* ═══ CLOUD SIGN ═══ */
+const BLOB='https://jsonblob.com/api/jsonBlob/019d01ec-05d3-7d93-972d-49f17cd51099';
+let _saveTimer=null, _editingSlot=null;
+
 (function(){
-  const g = document.getElementById('signGrid');
-  for (let i = 1; i <= 11; i++) {
-    const s = document.createElement('div');
-    s.className = 'sign-slot';
-    s.innerHTML = `<span class="sign-idx">${String(i).padStart(2,'0')}</span><input class="sign-input" type="text" placeholder="SIGN" maxlength="8" onchange="doSign(this)">`;
+  const g=document.getElementById('signGrid');
+  for(let i=1;i<=11;i++){
+    const s=document.createElement('div');
+    s.className='sign-slot';
+    s.innerHTML=`<span class="sign-idx">${String(i).padStart(2,'0')}</span>`+
+      `<input class="sign-input" id="slot${i}" type="text" placeholder="SIGN" maxlength="8" data-slot="${i}">`;
     g.appendChild(s);
   }
+  document.querySelectorAll('.sign-input').forEach(inp=>{
+    inp.addEventListener('focus',()=>{ _editingSlot=inp.dataset.slot; });
+    inp.addEventListener('blur',()=>{
+      _editingSlot=null;
+      saveSlot(inp.dataset.slot);
+    });
+    inp.addEventListener('input',()=>{
+      const slot=inp.parentElement;
+      slot.classList.toggle('signed',inp.value.trim().length>0);
+      updateCounter();
+      clearTimeout(_saveTimer);
+      _saveTimer=setTimeout(()=>saveSlot(inp.dataset.slot),2000);
+    });
+  });
+  loadSignatures();
+  setInterval(loadSignatures,12000);
 })();
-function doSign(el) {
-  const slot = el.parentElement;
-  slot.classList.toggle('signed', el.value.trim().length > 0);
-  const n = document.querySelectorAll('.sign-slot.signed').length;
-  const counter = document.getElementById('signCounter');
-  if (n === 11) {
-    counter.innerHTML = '<em style="font-size:14px;letter-spacing:4px;">ALL AUTHENTICATED — 条约生效</em>';
-  } else {
-    counter.innerHTML = `AUTHENTICATED <em>${n}</em> / <em>11</em>`;
-  }
+
+function showSync(s){
+  const el=document.getElementById('syncStatus');
+  if(!el)return;
+  const m={synced:['● SYNCED','synced'],saving:['◌ SAVING…','saving'],
+    error:['✕ OFFLINE — 本地已保存','error'],loading:['◌ LOADING…','loading']};
+  const[t,c]=m[s]||['',''];
+  el.textContent=t; el.className='sync-status '+c;
+}
+
+function updateCounter(){
+  const n=document.querySelectorAll('.sign-slot.signed').length;
+  const c=document.getElementById('signCounter');
+  if(n===11) c.innerHTML='<em style="font-size:14px;letter-spacing:4px;">ALL AUTHENTICATED — 条约生效</em>';
+  else c.innerHTML=`AUTHENTICATED <em>${n}</em> / <em>11</em>`;
+}
+
+function loadSignatures(){
+  fetch(BLOB,{headers:{'Accept':'application/json'}})
+    .then(r=>{if(!r.ok)throw 0;return r.json();})
+    .then(data=>{
+      for(let i=1;i<=11;i++){
+        const inp=document.getElementById('slot'+i);
+        const val=data['slot'+i]||'';
+        if(String(i)===_editingSlot) continue;
+        inp.value=val;
+        inp.parentElement.classList.toggle('signed',val.length>0);
+      }
+      localStorage.setItem('sign_backup',JSON.stringify(data));
+      updateCounter();
+      showSync('synced');
+    })
+    .catch(()=>{
+      const bk=localStorage.getItem('sign_backup');
+      if(bk){
+        const data=JSON.parse(bk);
+        for(let i=1;i<=11;i++){
+          const inp=document.getElementById('slot'+i);
+          if(String(i)===_editingSlot) continue;
+          inp.value=data['slot'+i]||'';
+          inp.parentElement.classList.toggle('signed',(data['slot'+i]||'').length>0);
+        }
+        updateCounter();
+      }
+      showSync('error');
+    });
+}
+
+function saveSlot(num){
+  showSync('saving');
+  fetch(BLOB,{headers:{'Accept':'application/json'}})
+    .then(r=>{if(!r.ok)throw 0;return r.json();})
+    .then(latest=>{
+      latest['slot'+num]=document.getElementById('slot'+num).value.trim();
+      return fetch(BLOB,{
+        method:'PUT',
+        headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body:JSON.stringify(latest)
+      });
+    })
+    .then(r=>{
+      if(!r.ok)throw 0;
+      showSync('synced');
+      setTimeout(loadSignatures,500);
+    })
+    .catch(()=>{
+      const bk=JSON.parse(localStorage.getItem('sign_backup')||'{}');
+      bk['slot'+num]=document.getElementById('slot'+num).value.trim();
+      localStorage.setItem('sign_backup',JSON.stringify(bk));
+      showSync('error');
+    });
 }
 
 /* ═══ NAV ACTIVE ═══ */
