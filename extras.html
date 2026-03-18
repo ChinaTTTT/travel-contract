@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>惩罚 & 搞怪 // NERV EXTRAS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+QingKe+HuangYou&family=Chakra+Petch:wght@300;400;600;700&family=Share+Tech+Mono&family=Noto+Sans+SC:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #05020a;
+    --white: #f0e8f8;
+    --green: #44D62C;
+    --purple: #7B2D8E;
+    --pink: #ff2d95;
+    --orange: #FF6A00;
+    --blue: #00e5ff;
+    --dim: rgba(240,232,248,0.35);
+    --glass: rgba(10,4,22,0.8);
+    --font-cn: 'ZCOOL QingKe HuangYou', sans-serif;
+    --font-hand: 'Ma Shan Zheng', cursive;
+    --font-tech: 'Chakra Petch', sans-serif;
+    --font-mono: 'Share Tech Mono', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  ::selection { background: var(--orange); color: #fff; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--black);
+    color: var(--white);
+    overflow-x: hidden;
+    font-family: 'Noto Sans SC', sans-serif;
+    cursor: crosshair;
+  }
+  canvas#rain {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 0; opacity: 0.4;
+  }
+
+  .back-link {
+    position: fixed; top: 16px; left: 16px; z-index: 100;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 3px; color: var(--dim);
+    text-decoration: none;
+    padding: 8px 16px;
+    border: 1px solid rgba(240,232,248,0.08);
+    background: rgba(5,2,10,0.7);
+    backdrop-filter: blur(8px);
+    transition: all 0.3s;
+  }
+  .back-link:hover {
+    color: var(--green); border-color: rgba(68,214,44,0.3);
+  }
+
+  .page-wrap {
+    position: relative; z-index: 2;
+    max-width: 800px; margin: 0 auto;
+    padding: 80px 6vw 60px;
+  }
+
+  /* ═══ HERO ═══ */
+  .page-hero {
+    margin-bottom: 60px;
+  }
+  .page-hero-num {
+    font-family: var(--font-tech);
+    font-size: clamp(5rem, 15vw, 9rem);
+    font-weight: 700; line-height: 0.8;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255,45,149,0.12);
+    margin-bottom: 8px;
+  }
+  .page-hero-title {
+    font-family: var(--font-hand);
+    font-size: clamp(2rem, 6vw, 3rem);
+    color: var(--white);
+  }
+  .page-hero-sub {
+    font-family: var(--font-mono);
+    font-size: 11px; letter-spacing: 4px;
+    color: var(--dim); margin-top: 12px;
+  }
+
+  /* ═══ WARNING BAR ═══ */
+  .warning-bar {
+    position: relative; overflow: hidden;
+    height: 28px; margin-bottom: 40px;
+    background: repeating-linear-gradient(
+      -45deg, rgba(255,200,0,0.04), rgba(255,200,0,0.04) 10px,
+      transparent 10px, transparent 20px
+    );
+    border-top: 1px solid rgba(255,200,0,0.15);
+    border-bottom: 1px solid rgba(255,200,0,0.15);
+    display: flex; align-items: center;
+  }
+  .warning-scroll {
+    position: absolute; white-space: nowrap;
+    animation: wScroll 25s linear infinite;
+    font-family: var(--font-mono);
+    font-size: 10px; letter-spacing: 6px;
+    text-transform: uppercase;
+    color: rgba(255,200,0,0.4);
+  }
+  @keyframes wScroll {
+    0% { transform: translateX(100vw); }
+    100% { transform: translateX(-200%); }
+  }
+
+  /* ═══ SECTION DIVIDER ═══ */
+  .sdiv {
+    display: flex; align-items: center; gap: 16px;
+    margin: 60px 0 30px;
+  }
+  .sdiv-line { flex: 1; height: 1px; background: rgba(240,232,248,0.05); }
+  .sdiv-text {
+    font-family: var(--font-mono);
+    font-size: 10px; letter-spacing: 6px;
+    color: rgba(240,232,248,0.12);
+  }
+
+  /* ═══ PENALTY TRIGGERS ═══ */
+  .trigger-list { list-style: none; margin-bottom: 40px; }
+  .trigger-item {
+    display: flex; gap: 16px; align-items: flex-start;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(240,232,248,0.03);
+    transition: all 0.3s;
+  }
+  .trigger-item:hover { padding-left: 8px; }
+  .trigger-item:hover .trigger-icon { color: var(--orange); }
+  .trigger-icon {
+    font-family: var(--font-tech);
+    font-size: 11px; font-weight: 700;
+    color: rgba(240,232,248,0.15);
+    min-width: 24px; margin-top: 2px;
+    transition: color 0.3s;
+  }
+  .trigger-text {
+    font-size: 14px; line-height: 1.8;
+    color: rgba(240,232,248,0.6);
+  }
+  .trigger-text .note {
+    display: block; font-size: 12px;
+    color: rgba(240,232,248,0.25);
+    font-family: var(--font-mono);
+    letter-spacing: 1px; margin-top: 2px;
+  }
+
+  /* ═══ PUNISHMENT POOL ═══ */
+  .pool-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 6px; margin-bottom: 30px;
+  }
+  @media (max-width: 500px) { .pool-grid { grid-template-columns: 1fr; } }
+  .pool-card {
+    padding: 16px;
+    border: 1px solid rgba(240,232,248,0.04);
+    transition: all 0.4s; cursor: default;
+    position: relative;
+  }
+  .pool-card:hover {
+    border-color: rgba(255,106,0,0.25);
+    background: rgba(255,106,0,0.03);
+  }
+  .pool-card:hover .pool-num { color: var(--orange); }
+  .pool-num {
+    font-family: var(--font-tech);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 3px;
+    color: rgba(240,232,248,0.1);
+    margin-bottom: 6px; transition: color 0.3s;
+  }
+  .pool-desc {
+    font-size: 13px; line-height: 1.7;
+    color: rgba(240,232,248,0.5);
+  }
+
+  /* ═══ SYNC SPINNER ═══ */
+  .sync-section {
+    text-align: center; margin: 50px 0;
+    padding: 40px 0;
+    border-top: 1px solid rgba(240,232,248,0.03);
+    border-bottom: 1px solid rgba(240,232,248,0.03);
+  }
+  .sync-label {
+    font-family: var(--font-mono);
+    font-size: 10px; letter-spacing: 6px;
+    color: rgba(240,232,248,0.2);
+    margin-bottom: 24px;
+  }
+  .sync-ring-wrap {
+    position: relative;
+    width: 180px; height: 180px;
+    margin: 0 auto 20px;
+    display: none;
+  }
+  .sync-ring-wrap canvas { width: 180px; height: 180px; }
+  .sync-rate-display {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    text-align: center;
+  }
+  .sync-rate-display .label {
+    font-family: var(--font-mono);
+    font-size: 8px; letter-spacing: 3px;
+    color: var(--dim);
+  }
+  .sync-rate-display .rate {
+    font-family: var(--font-tech);
+    font-size: 32px; font-weight: 700;
+    color: var(--green);
+    text-shadow: 0 0 20px rgba(68,214,44,0.4);
+  }
+  .sync-btn {
+    font-family: var(--font-tech);
+    font-size: 12px; letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--orange); background: transparent;
+    border: 1px solid rgba(255,106,0,0.3);
+    padding: 14px 36px; cursor: pointer;
+    transition: all 0.3s;
+  }
+  .sync-btn:hover {
+    background: rgba(255,106,0,0.06);
+    box-shadow: 0 0 30px rgba(255,106,0,0.1);
+  }
+  .sync-result {
+    margin-top: 20px; padding: 16px;
+    border: 1px solid var(--orange);
+    font-family: var(--font-cn);
+    font-size: 16px; color: var(--white);
+    display: none;
+    animation: fadeUp 0.4s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ═══ SPECIAL CLAUSES ═══ */
+  .clause-block {
+    margin-bottom: 32px;
+    padding-left: 20px;
+    border-left: 1px solid rgba(255,45,149,0.15);
+    transition: border-color 0.3s;
+  }
+  .clause-block:hover { border-left-color: var(--pink); }
+  .clause-num {
+    font-family: var(--font-tech);
+    font-size: 10px; letter-spacing: 3px;
+    color: rgba(255,45,149,0.3);
+    margin-bottom: 4px;
+  }
+  .clause-title {
+    font-family: var(--font-cn);
+    font-size: 18px; color: var(--white);
+    margin-bottom: 8px;
+  }
+  .clause-text {
+    font-size: 14px; line-height: 2;
+    color: rgba(240,232,248,0.5);
+    max-width: 600px;
+  }
+  .clause-text strong { color: var(--orange); font-weight: 400; }
+  .clause-text .warn { color: var(--pink); }
+
+  /* ═══ CODENAME GRID ═══ */
+  .codename-wrap { margin-top: 16px; }
+  .codename-grid {
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .codename-chip {
+    font-family: var(--font-cn);
+    font-size: 14px; color: var(--green);
+    padding: 6px 14px;
+    border: 1px solid rgba(68,214,44,0.12);
+    cursor: pointer; transition: all 0.3s;
+    position: relative;
+  }
+  .codename-chip:hover {
+    border-color: var(--green);
+    box-shadow: 0 0 16px rgba(68,214,44,0.15);
+    background: rgba(68,214,44,0.03);
+  }
+  .codename-chip .sub {
+    font-family: var(--font-mono);
+    font-size: 8px; color: rgba(240,232,248,0.2);
+    letter-spacing: 1px; display: block; margin-top: 2px;
+  }
+
+  /* ═══ VOTE CARDS ═══ */
+  .vote-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 8px; margin-top: 16px;
+  }
+  @media (max-width: 500px) { .vote-row { grid-template-columns: 1fr; } }
+  .vote-card {
+    padding: 24px; text-align: center;
+    border: 1px solid rgba(240,232,248,0.04);
+    transition: all 0.3s;
+  }
+  .vote-card:hover { border-color: rgba(240,232,248,0.1); }
+  .vote-emoji { font-size: 36px; margin-bottom: 8px; }
+  .vote-label {
+    font-family: var(--font-cn);
+    font-size: 16px; margin-bottom: 6px;
+  }
+  .vote-desc {
+    font-size: 12px; line-height: 1.8;
+    color: rgba(240,232,248,0.4);
+  }
+  .vote-card.gold .vote-label { color: #FFD700; }
+  .vote-card.red .vote-label { color: var(--pink); }
+
+  /* ═══ CURRENCY ═══ */
+  .currency-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(240,232,248,0.03);
+    font-size: 13px; color: rgba(240,232,248,0.45);
+  }
+  .currency-eq {
+    font-family: var(--font-mono);
+    color: var(--orange); font-size: 12px;
+    letter-spacing: 1px;
+  }
+
+  /* ═══ FOOTER ═══ */
+  .page-footer {
+    text-align: center; margin-top: 80px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(240,232,248,0.03);
+  }
+  .page-footer p {
+    font-family: var(--font-hand);
+    font-size: 18px;
+    color: rgba(240,232,248,0.15);
+    line-height: 2;
+  }
+  .page-footer .credit {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 3px;
+    color: rgba(240,232,248,0.06);
+    margin-top: 16px;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="rain"></canvas>
+<a class="back-link" href="index.html">← COVENANT</a>
+
+<div class="page-wrap">
+
+  <!-- HERO -->
+  <div class="page-hero">
+    <div class="page-hero-num">EX</div>
+    <div class="page-hero-title">惩罚 & 搞怪</div>
+    <div class="page-hero-sub">PENALTY SYSTEM + SPECIAL CLAUSES</div>
+  </div>
+
+  <!-- WARNING BAR -->
+  <div class="warning-bar">
+    <div class="warning-scroll">警告 WARNING — 惩罚制度启動 PENALTY SYSTEM ACTIVE — 違反者覚悟 — 警告 WARNING — 惩罚制度启動 PENALTY SYSTEM ACTIVE — 違反者覚悟 —</div>
+  </div>
+
+  <!-- ═══ PENALTY TRIGGERS ═══ -->
+  <div class="sdiv"><div class="sdiv-line"></div><span class="sdiv-text">TRIGGERS</span><div class="sdiv-line"></div></div>
+
+  <ul class="trigger-list">
+    <li class="trigger-item">
+      <span class="trigger-icon">01</span>
+      <div class="trigger-text">迟到超过约定时间5分钟<span class="note">集合时间就是集合时间</span></div>
+    </li>
+    <li class="trigger-item">
+      <span class="trigger-icon">02</span>
+      <div class="trigger-text">集体合影时不在场<span class="note">除非在上厕所</span></div>
+    </li>
+    <li class="trigger-item">
+      <span class="trigger-icon">03</span>
+      <div class="trigger-text">说出"无聊""没意思""不想去"三连<span class="note">可以不去 但不能扫兴</span></div>
+    </li>
+    <li class="trigger-item">
+      <span class="trigger-icon">04</span>
+      <div class="trigger-text">走散后超过10分钟未在群里报位置<span class="note">安全第一</span></div>
+    </li>
+    <li class="trigger-item">
+      <span class="trigger-icon">05</span>
+      <div class="trigger-text">点菜时说"随便""都行"超过3次<span class="note">选择困难症惩罚条款</span></div>
+    </li>
+  </ul>
+
+  <!-- ═══ PUNISHMENT POOL ═══ -->
+  <div class="sdiv"><div class="sdiv-line"></div><span class="sdiv-text">PUNISHMENT POOL</span><div class="sdiv-line"></div></div>
+
+  <div class="pool-grid">
+    <div class="pool-card"><div class="pool-num">P-01</div><div class="pool-desc">给全队买一轮冰粉/奶茶</div></div>
+    <div class="pool-card"><div class="pool-num">P-02</div><div class="pool-desc">下一个景点当全队御用摄影师（10分钟 每人至少3张满意照）</div></div>
+    <div class="pool-card"><div class="pool-num">P-03</div><div class="pool-desc">模仿动漫角色经典台词/Pose 大家拍视频</div></div>
+    <div class="pool-card"><div class="pool-num">P-04</div><div class="pool-desc">在江边大声喊出一句指定的话（内容由大家投票决定）</div></div>
+    <div class="pool-card"><div class="pool-num">P-05</div><div class="pool-desc">下一顿饭负责给所有人倒茶/倒酒/盛饭</div></div>
+    <div class="pool-card"><div class="pool-num">P-06</div><div class="pool-desc">真心话一道（由其他10人投票选出问题）</div></div>
+    <div class="pool-card"><div class="pool-num">P-07</div><div class="pool-desc">表演才艺（唱歌/口技/讲笑话 15秒以上）</div></div>
+    <div class="pool-card"><div class="pool-num">P-08</div><div class="pool-desc">下一个打车环节负责所有车的叫车+付款</div></div>
+  </div>
+
+  <!-- ═══ SYNC RATE SPINNER ═══ -->
+  <div class="sync-section">
+    <div class="sync-label">SYNCHRONIZATION TEST</div>
+    <div class="sync-ring-wrap" id="syncRing">
+      <canvas id="syncCanvas" width="360" height="360"></canvas>
+      <div class="sync-rate-display">
+        <span class="label">SYNC RATE</span>
+        <span class="rate" id="syncRate">0%</span>
+      </div>
+    </div>
+    <button class="sync-btn" id="syncBtn" onclick="startSync()">INITIATE SYNC</button>
+    <div class="sync-result" id="syncResult"></div>
+  </div>
+
+  <!-- ═══ SPECIAL CLAUSES ═══ -->
+  <div class="sdiv"><div class="sdiv-line"></div><span class="sdiv-text">SPECIAL CLAUSES</span><div class="sdiv-line"></div></div>
+
+  <!-- 称呼系统 -->
+  <div class="clause-block">
+    <div class="clause-num">ART. 09</div>
+    <div class="clause-title">称呼系统</div>
+    <div class="clause-text">
+      每人出发前抽签获得一个"旅行代号"，全程必须用代号互称。<br>
+      <strong>喊真名的罚一次！</strong>
+    </div>
+    <div class="codename-wrap">
+      <div class="codename-grid">
+        <div class="codename-chip" onclick="this.style.borderColor='var(--green)';this.style.boxShadow='0 0 16px rgba(68,214,44,0.2)'">碇真嗣<span class="sub">PILOT 01</span></div>
+        <div class="codename-chip" onclick="this.style.borderColor='var(--green)';this.style.boxShadow='0 0 16px rgba(68,214,44,0.2)'">绫波丽<span class="sub">PILOT 00</span></div>
+        <div class="codename-chip" onclick="this.style.borderColor='var(--green)';this.style.boxShadow='0 0 16px rgba(68,214,44,0.2)'">明日香<span class="sub">PILOT 02</span></div>
+        <div class="codename-chip" onclick="this.style.borderColor='var(--green)';this.style.boxShadow='0 0 16px rgba(68,214,44,0.2)'">葛城美里<span class="sub">CAPTAIN</span></div>
+        <div class="codename-chip" onclick="this.style.borderColor='var(--green)';this.style.boxShadow='0 0 16px rgba(68,214,44,0.2)'">赤木律子<span class="sub">SCIENCE</span></div>
+        <div class="codename-chip" onclick="this.style.borderColor='var(--green)';this.style.boxShadow='0 0 16px rgba(68,214,44,0.2)'">加持良治<span class="sub">SPECIAL</span></div>
+        <div class="codename-chip" onclick="this.style.borderColor='var(--green)';this.style.boxShadow='0 0 16px rgba(68,214,44,0.2)'">冬月<span class="sub">SUB CMD</span></div>
+        <div class="codename-chip" onclick="this.style.borderColor='var(--green)';this.style.boxShadow='0 0 16px rgba(68,214,44,0.2)'">日向<span class="sub">OPS-A</span></div>
+        <div class="codename-chip" onclick="this.style.borderColor='var(--green)';this.style.boxShadow='0 0 16px rgba(68,214,44,0.2)'">青叶<span class="sub">OPS-B</span></div>
+        <div class="codename-chip" onclick="this.style.borderColor='var(--green)';this.style.boxShadow='0 0 16px rgba(68,214,44,0.2)'">伊吹<span class="sub">OPS-C</span></div>
+        <div class="codename-chip" onclick="this.style.borderColor='var(--green)';this.style.boxShadow='0 0 16px rgba(68,214,44,0.2)'">渚薰<span class="sub">ANGEL</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MVP -->
+  <div class="clause-block">
+    <div class="clause-num">ART. 10</div>
+    <div class="clause-title">每日MVP & 倒霉蛋</div>
+    <div class="vote-row">
+      <div class="vote-card gold">
+        <div class="vote-emoji">🏅</div>
+        <div class="vote-label">当日MVP</div>
+        <div class="vote-desc">今天带来最多快乐的人<br>第二天睡到自然醒 早餐端到床前</div>
+      </div>
+      <div class="vote-card red">
+        <div class="vote-emoji">💀</div>
+        <div class="vote-label">当日倒霉蛋</div>
+        <div class="vote-desc">今天最倒霉/最搞笑事件的人<br>第二天早起喊全队起床</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 禁止正常Pose -->
+  <div class="clause-block">
+    <div class="clause-num">ART. 11</div>
+    <div class="clause-title">禁止正常Pose</div>
+    <div class="clause-text">
+      集体合影时 <strong>禁止所有人同时做"剪刀手"</strong>。<br>
+      每次合影必须有至少一种创意Pose：<br>
+      — 全员模仿同一个动漫角色招牌动作<br>
+      — 叠罗汉（安全第一）<br>
+      — 假装被816洞厅里的东西吓到<br>
+      — 全员面无表情盯着镜头 比谁先笑
+    </div>
+  </div>
+
+  <!-- BGM -->
+  <div class="clause-block">
+    <div class="clause-num">ART. 14</div>
+    <div class="clause-title">BGM负责人</div>
+    <div class="clause-text">
+      全程设一名"气氛DJ"（每天轮换）：<br>
+      — 出发上车 → 燃的出征曲<br>
+      — 到达景点 → 对应动漫BGM（816建议播EVA配乐）<br>
+      — 江边喝酒 → 舒缓夜晚BGM<br>
+      — 赶路时 → 节奏快的行军曲<br>
+      <span class="warn">DJ选歌太烂的 被全员"下课"换人</span>
+    </div>
+  </div>
+
+  <!-- 八卦不出团 -->
+  <div class="clause-block">
+    <div class="clause-num">ART. 16</div>
+    <div class="clause-title">八卦不出团</div>
+    <div class="clause-text">
+      旅行中所有社死瞬间、醉后发言、真心话内容，仅限团内消化。<br>
+      <span class="warn">违反者永久取消下次集体出游参与资格。</span>
+    </div>
+  </div>
+
+  <!-- 冰粉本位制 -->
+  <div class="clause-block">
+    <div class="clause-num">ART. 17</div>
+    <div class="clause-title">冰粉本位制</div>
+    <div class="clause-text">本次旅行通用"货币"为冰粉。所有赌注、罚款、感谢均以冰粉结算。</div>
+    <div style="margin-top:12px;">
+      <div class="currency-row"><span>🍧</span><span>"赌你不敢吃烤脑花"</span><span class="currency-eq">= 1 BOWL</span></div>
+      <div class="currency-row"><span>🍧</span><span>"谢谢你帮我拍照"</span><span class="currency-eq">= 1 BOWL</span></div>
+      <div class="currency-row"><span>🍧</span><span>"对不起我迟到了"</span><span class="currency-eq">= 1 BOWL</span></div>
+    </div>
+    <div style="font-family:var(--font-mono);font-size:11px;color:rgba(240,232,248,0.2);margin-top:16px;letter-spacing:2px;">
+      EST. CONSUMPTION: <span style="color:var(--orange);">50+ BOWLS</span>
+    </div>
+  </div>
+
+  <!-- 最终解释权 -->
+  <div class="clause-block">
+    <div class="clause-num">ART. 18</div>
+    <div class="clause-title">最终解释权</div>
+    <div class="clause-text">
+      本条约最终解释权归策划组所有。<br>
+      <strong>但如果10个人都觉得策划组解释不合理 策划组自动触发双倍惩罚。民主万岁。</strong>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <p>"不是因为旅行有多完美，<br>而是因为和你们在一起。"</p>
+    <div class="credit">NERV TRAVEL DIVISION // CHONGQING 2026</div>
+  </div>
+
+</div>
+
+<script>
+/* ═══ RAIN ═══ */
+(function(){
+  const c = document.getElementById('rain');
+  const ctx = c.getContext('2d');
+  const kata = 'アイウエオカキクケコサシスセソタチツテト';
+  let w, h, cols, drops;
+  function resize() {
+    w = c.width = innerWidth;
+    h = c.height = innerHeight;
+    cols = Math.floor(w / 16);
+    drops = Array(cols).fill(0).map(() => Math.random() * -50);
+  }
+  resize();
+  addEventListener('resize', resize);
+  function draw() {
+    ctx.fillStyle = 'rgba(5,2,10,0.06)';
+    ctx.fillRect(0, 0, w, h);
+    for (let i = 0; i < cols; i++) {
+      if (Math.random() > 0.97) {
+        ctx.font = '14px "Share Tech Mono"';
+        ctx.fillStyle = `rgba(123,45,142,${Math.random()*0.1+0.02})`;
+        ctx.fillText(kata[Math.floor(Math.random()*kata.length)], i*16, drops[i]*16);
+      }
+      drops[i] += 0.3 + Math.random() * 0.2;
+      if (drops[i]*16 > h && Math.random() > 0.99) drops[i] = 0;
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ═══ SYNC SPINNER ═══ */
+const punishments = [
+  '🍧 给全队买一轮冰粉/奶茶',
+  '📸 下一个景点当全队御用摄影师',
+  '🎭 模仿动漫角色经典台词/Pose',
+  '📣 在江边大声喊出指定的话',
+  '🍵 下一顿饭负责倒茶/倒酒/盛饭',
+  '💬 真心话一道（其他10人出题）',
+  '🎤 表演才艺 15秒以上',
+  '🚕 下一个打车环节全包'
+];
+
+function startSync() {
+  const btn = document.getElementById('syncBtn');
+  const ring = document.getElementById('syncRing');
+  const canvas = document.getElementById('syncCanvas');
+  const rateEl = document.getElementById('syncRate');
+  const result = document.getElementById('syncResult');
+  if (btn.disabled) return;
+  btn.disabled = true;
+  btn.textContent = 'SYNCHRONIZING...';
+  ring.style.display = 'block';
+  result.style.display = 'none';
+
+  const ctx = canvas.getContext('2d');
+  const s = 360, cx = 180, cy = 180, r = 150;
+  let frame = 0;
+  const total = 100;
+  const target = Math.floor(Math.random() * 50) + 40;
+
+  function draw() {
+    frame++;
+    const ease = 1 - Math.pow(1 - frame / total, 3);
+    const progress = ease;
+    ctx.clearRect(0, 0, s, s);
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(240,232,248,0.04)';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    for (let i = 0; i < 30; i++) {
+      const a = (i / 30) * Math.PI * 2 - Math.PI / 2;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(a) * (r - 12), cy + Math.sin(a) * (r - 12));
+      ctx.lineTo(cx + Math.cos(a) * (r - 6), cy + Math.sin(a) * (r - 6));
+      ctx.strokeStyle = i / 30 <= progress ? 'rgba(68,214,44,0.5)' : 'rgba(240,232,248,0.04)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + progress * Math.PI * 2);
+    ctx.strokeStyle = `rgba(68,214,44,${0.3 + progress * 0.5})`;
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    rateEl.textContent = Math.floor(ease * target) + '%';
+
+    if (frame < total) {
+      requestAnimationFrame(draw);
+    } else {
+      const p = punishments[Math.floor(Math.random() * punishments.length)];
+      result.textContent = p;
+      result.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'INITIATE SYNC';
+      setTimeout(() => ring.style.display = 'none', 1500);
+    }
+  }
+  draw();
+}
+</script>
+</body>
+</html>

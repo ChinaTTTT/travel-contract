@@ -3,1460 +3,693 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NERV TRAVEL DIVISION // 不扫兴 & 欢乐条约</title>
+<title>不扫兴条约 // NERV CHONGQING</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+QingKe+HuangYou&family=Chakra+Petch:wght@300;400;600;700&family=Share+Tech+Mono&family=Noto+Sans+SC:wght@300;400;700;900&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
-
   :root {
-    --eva-purple: #7B2D8E;
-    --eva-green: #44D62C;
-    --eva-orange: #FF6A00;
-    --eva-red: #ff1744;
-    --eva-dark: #1a0a2e;
-    --eva-darker: #08020f;
-    --neon-pink: #ff2d95;
-    --neon-blue: #00e5ff;
-    --neon-yellow: #ffe14d;
-    --card-bg: rgba(20, 8, 45, 0.88);
-    --glow-purple: rgba(123, 45, 142, 0.5);
-    --glow-green: rgba(68, 214, 44, 0.4);
-    --hud-color: rgba(68, 214, 44, 0.6);
-    --font-mono: 'Share Tech Mono', 'Courier New', monospace;
-    --font-tech: 'Orbitron', sans-serif;
+    --black: #05020a;
+    --white: #f0e8f8;
+    --green: #44D62C;
+    --purple: #7B2D8E;
+    --pink: #ff2d95;
+    --orange: #FF6A00;
+    --blue: #00e5ff;
+    --dim: rgba(240,232,248,0.35);
+    --glass: rgba(10,4,22,0.72);
+    --font-cn: 'ZCOOL QingKe HuangYou', 'Noto Sans SC', sans-serif;
+    --font-hand: 'Ma Shan Zheng', cursive;
+    --font-tech: 'Chakra Petch', sans-serif;
+    --font-mono: 'Share Tech Mono', monospace;
   }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  ::selection { background: var(--pink); color: #fff; }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
+  html { scroll-behavior: smooth; }
   body {
-    font-family: 'Noto Sans SC', sans-serif;
-    background: var(--eva-darker);
-    color: #e0d4f0;
-    min-height: 100vh;
+    background: var(--black);
+    color: var(--white);
     overflow-x: hidden;
+    cursor: crosshair;
   }
 
-  /* ════════════════ AT FIELD HEXAGONAL BG ════════════════ */
-  .hex-bg {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; z-index: 0;
-    opacity: 0.12;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100' viewBox='0 0 56 100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66Z' fill='none' stroke='%237B2D8E' stroke-width='1'/%3E%3Cpath d='M28 100L0 84L0 50L28 34L56 50L56 84L28 100Z' fill='none' stroke='%237B2D8E' stroke-width='1'/%3E%3C/svg%3E");
-    background-size: 56px 100px;
-    animation: hexPulse 4s ease-in-out infinite;
-  }
-  @keyframes hexPulse {
-    0%,100% { opacity: 0.08; }
-    50% { opacity: 0.18; }
-  }
-
-  /* ════════════════ CYBER RAIN CANVAS ════════════════ */
-  #cyberRain {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; z-index: 1;
-  }
-
-  /* ════════════════ FOG LAYERS ════════════════ */
-  .fog-layer {
-    position: fixed; left: 0; width: 100%; height: 200px;
-    pointer-events: none; z-index: 2;
-  }
-  .fog-top {
-    top: 0;
-    background: linear-gradient(180deg, rgba(8,2,15,0.9) 0%, transparent 100%);
-  }
-  .fog-mid {
-    top: 50%; transform: translateY(-50%);
-    height: 300px;
-    background: radial-gradient(ellipse at center, rgba(123,45,142,0.08) 0%, transparent 70%);
-    animation: fogDrift 12s ease-in-out infinite;
-  }
-  .fog-bottom {
-    bottom: 0; top: auto;
-    height: 250px;
-    background: linear-gradient(0deg, rgba(8,2,15,0.95) 0%, transparent 100%);
-  }
-  @keyframes fogDrift {
-    0%,100% { transform: translateY(-50%) translateX(-5%); opacity: 0.6; }
-    50% { transform: translateY(-50%) translateX(5%); opacity: 1; }
-  }
-
-  /* ════════════════ HUD CORNER LINES ════════════════ */
-  .hud-corner {
-    position: fixed; width: 60px; height: 60px;
-    pointer-events: none; z-index: 10;
-    opacity: 0.5;
-  }
-  .hud-corner::before, .hud-corner::after {
-    content: ''; position: absolute; background: var(--hud-color);
-  }
-  .hud-tl { top: 12px; left: 12px; }
-  .hud-tl::before { top: 0; left: 0; width: 30px; height: 2px; }
-  .hud-tl::after { top: 0; left: 0; width: 2px; height: 30px; }
-  .hud-tr { top: 12px; right: 12px; }
-  .hud-tr::before { top: 0; right: 0; width: 30px; height: 2px; }
-  .hud-tr::after { top: 0; right: 0; width: 2px; height: 30px; }
-  .hud-bl { bottom: 12px; left: 12px; }
-  .hud-bl::before { bottom: 0; left: 0; width: 30px; height: 2px; }
-  .hud-bl::after { bottom: 0; left: 0; width: 2px; height: 30px; }
-  .hud-br { bottom: 12px; right: 12px; }
-  .hud-br::before { bottom: 0; right: 0; width: 30px; height: 2px; }
-  .hud-br::after { bottom: 0; right: 0; width: 2px; height: 30px; }
-
-  /* ════════════════ NEON SIDE TEXT ════════════════ */
-  .neon-side {
-    position: fixed; z-index: 3;
-    writing-mode: vertical-rl;
-    font-family: var(--font-mono);
-    font-size: 14px; letter-spacing: 6px;
-    pointer-events: none;
-    animation: neonFlicker 3s ease-in-out infinite;
-  }
-  .neon-left {
-    left: 12px; top: 50%; transform: translateY(-50%);
-    color: var(--neon-pink);
-    text-shadow: 0 0 5px var(--neon-pink), 0 0 20px var(--neon-pink), 0 0 40px var(--neon-pink);
-  }
-  .neon-right {
-    right: 12px; top: 50%; transform: translateY(-50%);
-    color: var(--neon-blue);
-    text-shadow: 0 0 5px var(--neon-blue), 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue);
-    animation-delay: 1.5s;
-  }
-  @keyframes neonFlicker {
-    0%,100% { opacity: 0.8; }
-    5% { opacity: 0.3; }
-    6% { opacity: 0.8; }
-    40% { opacity: 1; }
-    42% { opacity: 0.5; }
-    43% { opacity: 1; }
-    70% { opacity: 0.9; }
-  }
-
-  /* ════════════════ NAV BAR ════════════════ */
-  .cyber-nav {
-    position: fixed; top: 0; left: 0; width: 100%; z-index: 100;
-    background: rgba(8,2,15,0.85);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(68,214,44,0.2);
-    padding: 0 20px;
-    display: flex; align-items: center; justify-content: space-between;
-    height: 48px;
-    transition: transform 0.3s ease;
-    font-family: var(--font-mono);
-  }
-  .cyber-nav.hidden { transform: translateY(-100%); }
-  .nav-logo {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 12px; color: var(--eva-green);
-    letter-spacing: 2px;
-  }
-  .nav-logo svg { width: 24px; height: 24px; }
-  .nav-links { display: flex; gap: 4px; }
-  .nav-links a {
-    color: rgba(224,212,240,0.6); text-decoration: none;
-    padding: 6px 12px; font-size: 11px;
-    border: 1px solid transparent;
-    border-radius: 4px; transition: all 0.2s;
-    letter-spacing: 1px; text-transform: uppercase;
-  }
-  .nav-links a:hover, .nav-links a.active {
-    color: var(--eva-green);
-    border-color: rgba(68,214,44,0.3);
-    background: rgba(68,214,44,0.05);
-    text-shadow: 0 0 8px var(--glow-green);
-  }
-  .nav-status {
-    font-size: 10px; color: var(--eva-green);
-    display: flex; align-items: center; gap: 6px;
-  }
-  .nav-status .dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--eva-green);
-    box-shadow: 0 0 6px var(--eva-green);
-    animation: blink 2s infinite;
-  }
-  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-
-  /* ════════════════ CONTAINER ════════════════ */
-  .container {
-    position: relative; z-index: 5;
-    max-width: 900px; margin: 0 auto;
-    padding: 60px 20px 60px;
-  }
-
-  /* ════════════════ NERV HERO ════════════════ */
-  .hero {
-    text-align: center; padding: 60px 20px 40px;
+  /* ═══════ OPENING CINEMATIC ═══════ */
+  .opening {
     position: relative;
+    width: 100%; height: 100vh;
+    overflow: hidden;
+    display: flex; align-items: flex-end;
   }
-  .hero::before {
-    content: ''; position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 500px; height: 500px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(123,45,142,0.25) 0%, transparent 70%);
-    filter: blur(80px); pointer-events: none;
-  }
-
-  .nerv-logo {
-    width: 80px; height: 90px; margin: 0 auto 20px;
-    animation: logoPulse 3s ease-in-out infinite;
-  }
-  @keyframes logoPulse {
-    0%,100% { filter: drop-shadow(0 0 8px rgba(68,214,44,0.3)); }
-    50% { filter: drop-shadow(0 0 20px rgba(68,214,44,0.7)); }
-  }
-
-  .hero-badge {
-    display: inline-block;
-    background: transparent;
-    border: 1px solid var(--eva-green);
-    padding: 5px 20px; border-radius: 2px;
-    font-family: var(--font-tech);
-    font-size: 11px; font-weight: 700; letter-spacing: 4px;
-    text-transform: uppercase; margin-bottom: 24px;
-    color: var(--eva-green);
-    text-shadow: 0 0 10px var(--glow-green);
-    box-shadow: 0 0 15px rgba(68,214,44,0.15);
-  }
-
-  /* ── GLITCH TITLE ── */
-  .glitch-wrapper {
-    position: relative; display: inline-block;
-  }
-  .glitch-title {
-    font-size: clamp(2rem, 6vw, 3.2rem);
-    font-weight: 900; line-height: 1.3;
-    color: #fff;
-    text-shadow:
-      0 0 10px rgba(255,45,149,0.5),
-      0 0 40px rgba(255,45,149,0.2),
-      0 0 80px rgba(123,45,142,0.3);
-    position: relative;
-    margin-bottom: 16px;
-  }
-  .glitch-wrapper:hover .glitch-title {
-    animation: glitch 0.3s infinite;
-  }
-  .glitch-wrapper::before,
-  .glitch-wrapper::after {
-    content: attr(data-text);
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    font-size: clamp(2rem, 6vw, 3.2rem);
-    font-weight: 900; line-height: 1.3;
-    pointer-events: none; opacity: 0;
-  }
-  .glitch-wrapper:hover::before {
-    opacity: 0.8;
-    color: var(--neon-blue);
-    animation: glitchBefore 0.3s infinite;
-    clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
-  }
-  .glitch-wrapper:hover::after {
-    opacity: 0.8;
-    color: var(--neon-pink);
-    animation: glitchAfter 0.3s infinite;
-    clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
-  }
-  @keyframes glitch {
-    0% { transform: translate(0); }
-    20% { transform: translate(-2px, 2px); }
-    40% { transform: translate(2px, -1px); }
-    60% { transform: translate(-1px, -2px); }
-    80% { transform: translate(1px, 1px); }
-    100% { transform: translate(0); }
-  }
-  @keyframes glitchBefore {
-    0% { transform: translate(0); }
-    20% { transform: translate(3px, -1px); }
-    40% { transform: translate(-3px, 2px); }
-    60% { transform: translate(1px, -3px); }
-    80% { transform: translate(-2px, 1px); }
-    100% { transform: translate(0); }
-  }
-  @keyframes glitchAfter {
-    0% { transform: translate(0); }
-    20% { transform: translate(-3px, 2px); }
-    40% { transform: translate(2px, -2px); }
-    60% { transform: translate(-1px, 3px); }
-    80% { transform: translate(3px, -1px); }
-    100% { transform: translate(0); }
-  }
-
-  .hero-sub {
-    font-size: 16px; color: rgba(224,212,240,0.6);
-    max-width: 500px; margin: 0 auto 10px;
-    font-family: var(--font-mono);
-  }
-  .hero-meta {
-    display: flex; justify-content: center; gap: 16px;
-    flex-wrap: wrap; margin-top: 24px;
-  }
-  .meta-chip {
-    background: rgba(123,45,142,0.15);
-    border: 1px solid rgba(123,45,142,0.4);
-    padding: 8px 18px; border-radius: 4px; font-size: 13px;
-    backdrop-filter: blur(10px);
-    font-family: var(--font-mono);
-  }
-  .meta-chip span { color: var(--eva-green); font-weight: 700; }
-
-  .countdown {
-    display: flex; justify-content: center; gap: 12px;
-    margin-top: 24px; flex-wrap: wrap;
-  }
-  .countdown-item {
-    background: rgba(20,8,45,0.8);
-    border: 1px solid rgba(68,214,44,0.25);
-    border-radius: 4px; padding: 12px 18px;
-    text-align: center; min-width: 72px;
-  }
-  .countdown-item .num {
-    font-size: 28px; font-weight: 900;
-    font-family: var(--font-tech);
-    color: var(--eva-green);
-    text-shadow: 0 0 12px var(--glow-green);
-    font-variant-numeric: tabular-nums;
-  }
-  .countdown-item .label {
-    font-size: 10px; color: rgba(224,212,240,0.4);
-    margin-top: 4px; font-family: var(--font-mono);
-    letter-spacing: 2px; text-transform: uppercase;
-  }
-
-  /* ════════════════ SEELE DIVIDER ════════════════ */
-  .seele-divider {
-    display: flex; align-items: center; justify-content: center;
-    gap: 16px; margin: 50px 0 10px;
-    font-family: var(--font-tech);
-    font-size: 11px; color: rgba(224,212,240,0.2);
-    letter-spacing: 4px;
-  }
-  .seele-divider::before, .seele-divider::after {
-    content: ''; flex: 1; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(123,45,142,0.4), transparent);
-  }
-
-  /* ════════════════ CHAPTER ════════════════ */
-  .chapter {
-    margin-top: 16px;
-    animation: fadeInUp 0.6s ease forwards;
-    opacity: 0;
-  }
-  .chapter.visible { opacity: 1; }
-  @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .chapter-header {
-    display: flex; align-items: center; gap: 14px;
-    margin-bottom: 24px; position: relative;
-  }
-  .chapter-number {
-    width: 50px; height: 50px; border-radius: 4px;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 900; font-size: 20px;
-    background: linear-gradient(135deg, var(--eva-purple), var(--eva-orange));
-    box-shadow: 0 4px 20px var(--glow-purple);
-    flex-shrink: 0; position: relative;
-  }
-  .chapter-title {
-    font-size: clamp(1.2rem, 3vw, 1.6rem);
-    font-weight: 700; color: #fff;
-  }
-
-  /* MAGI STATUS LIGHTS */
-  .magi-lights {
-    display: flex; gap: 6px; margin-left: auto;
-    align-items: center;
-  }
-  .magi-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    animation: magiPulse 2s ease-in-out infinite;
-  }
-  .magi-dot:nth-child(1) { background: var(--eva-green); animation-delay: 0s; }
-  .magi-dot:nth-child(2) { background: var(--neon-blue); animation-delay: 0.7s; }
-  .magi-dot:nth-child(3) { background: var(--eva-orange); animation-delay: 1.4s; }
-  .magi-label {
-    font-family: var(--font-mono);
-    font-size: 8px; color: rgba(224,212,240,0.3);
-    letter-spacing: 1px;
-  }
-  @keyframes magiPulse {
-    0%,100% { opacity: 0.4; box-shadow: none; }
-    50% { opacity: 1; box-shadow: 0 0 8px currentColor; }
-  }
-  .chapter-header::after {
-    content: ''; position: absolute; bottom: -10px; left: 0;
-    width: 100%; height: 1px;
-    background: linear-gradient(90deg, var(--eva-purple), transparent);
-  }
-
-  /* ════════════════ ARTICLE CARD ════════════════ */
-  .article-card {
-    background: var(--card-bg);
-    border: 1px solid rgba(123,45,142,0.25);
-    border-radius: 4px; padding: 24px;
-    margin-bottom: 14px;
-    transition: all 0.3s ease;
-    position: relative; overflow: hidden;
-    backdrop-filter: blur(10px);
-  }
-  .article-card::before {
-    content: ''; position: absolute; top: 0; left: 0;
-    width: 3px; height: 100%;
-    background: linear-gradient(180deg, var(--eva-green), var(--eva-purple));
-  }
-  .article-card::after {
-    content: ''; position: absolute; top: 0; right: 0;
-    width: 60px; height: 1px;
-    background: var(--eva-green); opacity: 0;
-    transition: opacity 0.3s;
-  }
-  .article-card:hover {
-    border-color: rgba(68,214,44,0.4);
-    transform: translateX(4px);
-    box-shadow: 0 0 30px rgba(68,214,44,0.06);
-  }
-  .article-card:hover::after { opacity: 0.5; }
-  .article-num {
-    display: inline-block;
-    font-family: var(--font-tech);
-    font-size: 11px; font-weight: 700;
-    padding: 3px 12px; border-radius: 2px;
-    margin-bottom: 10px;
-    background: rgba(68,214,44,0.15);
-    border: 1px solid rgba(68,214,44,0.3);
-    color: var(--eva-green);
-    letter-spacing: 2px;
-  }
-  .article-card h3 {
-    font-size: 18px; font-weight: 700; color: #fff;
-    margin-bottom: 10px;
-  }
-  .article-card p, .article-card li {
-    font-size: 15px; line-height: 1.8; color: rgba(224,212,240,0.8);
-  }
-  .article-card ul { list-style: none; padding-left: 4px; }
-  .article-card ul li::before {
-    content: '// '; color: var(--eva-green); font-family: var(--font-mono);
-    font-weight: 700;
-  }
-
-  /* ════════════════ WARNING BAR ════════════════ */
-  .warning-bar {
-    position: relative; overflow: hidden;
-    height: 32px; margin-bottom: 20px;
-    background: repeating-linear-gradient(
-      -45deg,
-      #1a1a00, #1a1a00 10px,
-      rgba(255,200,0,0.15) 10px, rgba(255,200,0,0.15) 20px
-    );
-    border: 1px solid rgba(255,200,0,0.3);
-    display: flex; align-items: center;
-    border-radius: 2px;
-  }
-  .warning-scroll {
-    position: absolute; white-space: nowrap;
-    animation: warningScroll 20s linear infinite;
-    font-family: var(--font-tech);
-    font-size: 11px; font-weight: 700;
-    letter-spacing: 4px; text-transform: uppercase;
-    color: rgba(255,200,0,0.8);
-    text-shadow: 0 0 8px rgba(255,200,0,0.4);
-  }
-  @keyframes warningScroll {
-    0% { transform: translateX(100vw); }
-    100% { transform: translateX(-100%); }
-  }
-
-  /* ════════════════ PENALTY TABLE ════════════════ */
-  .penalty-table {
-    width: 100%;
-    border-collapse: separate; border-spacing: 0;
-    margin: 16px 0; border-radius: 4px;
-    overflow: hidden; font-size: 14px;
-  }
-  .penalty-table th {
-    background: linear-gradient(135deg, rgba(123,45,142,0.6), rgba(90,31,110,0.8));
-    padding: 14px 16px; text-align: left;
-    font-weight: 700; color: #fff;
-    font-family: var(--font-mono); font-size: 12px;
-    letter-spacing: 2px; text-transform: uppercase;
-  }
-  .penalty-table td {
-    padding: 12px 16px;
-    border-bottom: 1px solid rgba(123,45,142,0.15);
-    background: rgba(20,8,45,0.6);
-  }
-  .penalty-table tr:last-child td { border-bottom: none; }
-  .penalty-table tr:hover td { background: rgba(123,45,142,0.2); }
-
-  /* ════════════════ PUNISHMENT POOL ════════════════ */
-  .pool-section { margin-top: 30px; text-align: center; }
-  .pool-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 10px; margin: 20px 0;
-  }
-  .pool-item {
-    background: var(--card-bg);
-    border: 1px solid rgba(123,45,142,0.25);
-    border-radius: 4px; padding: 14px;
-    display: flex; align-items: flex-start; gap: 12px;
-    transition: all 0.3s ease; cursor: default;
-    text-align: left;
-  }
-  .pool-item:hover {
-    border-color: var(--eva-orange);
-    box-shadow: 0 0 20px rgba(255,106,0,0.15);
-    transform: translateY(-2px);
-  }
-  .pool-item .num {
-    width: 28px; height: 28px; border-radius: 4px;
-    background: rgba(255,106,0,0.2);
-    border: 1px solid rgba(255,106,0,0.4);
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--font-tech);
-    font-weight: 900; font-size: 12px; flex-shrink: 0;
-    color: var(--eva-orange);
-  }
-  .pool-item .text { font-size: 14px; line-height: 1.6; }
-
-  /* ════════════════ SYNC RATE SPINNER ════════════════ */
-  .sync-area { margin: 36px 0; text-align: center; }
-  .sync-ring-wrapper {
-    position: relative; width: 200px; height: 200px;
-    margin: 0 auto 20px; display: none;
-  }
-  .sync-ring-wrapper canvas { width: 200px; height: 200px; }
-  .sync-text {
-    position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    font-family: var(--font-tech); font-size: 14px;
-    color: var(--eva-green); text-align: center;
-    letter-spacing: 2px;
-  }
-  .sync-text .rate {
-    display: block; font-size: 36px; font-weight: 900;
-    text-shadow: 0 0 20px var(--glow-green);
-  }
-  .sync-btn {
-    position: relative; display: inline-block;
-    background: transparent;
-    border: 2px solid var(--eva-orange);
-    color: var(--eva-orange); padding: 14px 44px;
-    font-size: 14px; font-weight: 700;
-    font-family: var(--font-tech);
-    letter-spacing: 3px; text-transform: uppercase;
-    border-radius: 2px; cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 0 20px rgba(255,106,0,0.2),
-                inset 0 0 20px rgba(255,106,0,0.05);
-  }
-  .sync-btn:hover {
-    background: rgba(255,106,0,0.1);
-    box-shadow: 0 0 40px rgba(255,106,0,0.3),
-                inset 0 0 30px rgba(255,106,0,0.1);
-    transform: scale(1.02);
-  }
-  .sync-btn:active { transform: scale(0.98); }
-  .sync-result {
-    margin-top: 20px; padding: 18px 24px;
-    background: rgba(255,106,0,0.08);
-    border: 1px solid var(--eva-orange);
-    border-radius: 2px; font-size: 16px;
-    font-weight: 700; color: #fff;
-    display: none;
-    font-family: var(--font-mono);
-    animation: popIn 0.4s cubic-bezier(.17,.67,.35,1.4);
-  }
-  @keyframes popIn {
-    from { transform: scale(0.5); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-
-  /* ════════════════ CODENAME ════════════════ */
-  .codename-section { margin-top: 20px; }
-  .codename-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 8px; margin-top: 14px;
-  }
-  .codename-tag {
-    background: var(--card-bg);
-    border: 1px solid rgba(68,214,44,0.2);
-    border-radius: 4px; padding: 10px 6px;
-    text-align: center; font-weight: 700;
-    font-size: 14px; color: var(--eva-green);
-    transition: all 0.3s ease; cursor: pointer;
-    position: relative; overflow: hidden;
-  }
-  .codename-tag:hover {
-    border-color: var(--eva-green);
-    box-shadow: 0 0 20px var(--glow-green);
+  .opening-bg {
+    position: absolute; inset: 0;
+    background: url('https://images.unsplash.com/photo-1713446994452-d449c59d3682?w=1920&q=80&auto=format&fit=crop')
+      center/cover no-repeat;
+    filter: saturate(0.6) brightness(0.35);
     transform: scale(1.05);
-    text-shadow: 0 0 8px var(--glow-green);
+    animation: slowZoom 30s ease-in-out infinite alternate;
   }
-  .codename-tag .role-label {
-    display: block; font-size: 9px; color: rgba(224,212,240,0.35);
-    margin-top: 4px; font-weight: 400;
-    font-family: var(--font-mono); letter-spacing: 1px;
+  @keyframes slowZoom {
+    0% { transform: scale(1.05); }
+    100% { transform: scale(1.15); }
   }
-
-  /* ════════════════ VOTE CARDS ════════════════ */
-  .vote-cards {
-    display: flex; gap: 16px; justify-content: center;
-    flex-wrap: wrap; margin-top: 16px;
+  .opening-overlay {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(0deg, var(--black) 0%, transparent 40%),
+      linear-gradient(180deg, rgba(5,2,10,0.5) 0%, transparent 30%),
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
   }
-  .vote-card {
-    flex: 1; min-width: 200px; max-width: 350px;
-    background: var(--card-bg);
-    border-radius: 4px; padding: 24px;
-    text-align: center;
-    border: 1px solid transparent;
-    transition: all 0.3s ease;
+  .opening-content {
+    position: relative; z-index: 2;
+    padding: 0 8vw 10vh;
+    max-width: 800px;
   }
-  .vote-card.mvp { border-color: rgba(255,215,0,0.2); }
-  .vote-card.mvp:hover { border-color: gold; box-shadow: 0 0 30px rgba(255,215,0,0.15); }
-  .vote-card.unlucky { border-color: rgba(255,60,60,0.2); }
-  .vote-card.unlucky:hover { border-color: #ff3c3c; box-shadow: 0 0 30px rgba(255,60,60,0.15); }
-  .vote-icon { font-size: 42px; margin-bottom: 10px; }
-  .vote-card h3 { font-size: 18px; color: #fff; margin-bottom: 8px; }
-  .vote-card p { font-size: 14px; line-height: 1.7; color: rgba(224,212,240,0.65); }
-
-  /* ════════════════ CURRENCY ════════════════ */
-  .currency-bar {
-    display: flex; align-items: center; justify-content: center;
-    gap: 12px; flex-wrap: wrap;
-    background: rgba(255,106,0,0.06);
-    border: 1px solid rgba(255,106,0,0.2);
-    border-radius: 4px; padding: 14px 24px;
-    margin-top: 12px; font-size: 14px;
+  .opening-tag {
+    font-family: var(--font-mono); font-size: 11px;
+    color: var(--green); letter-spacing: 6px;
+    margin-bottom: 16px; opacity: 0.7;
+    border-left: 2px solid var(--green);
+    padding-left: 12px;
   }
-  .currency-bar .emoji { font-size: 24px; }
-  .currency-bar .eq {
-    color: var(--eva-orange); font-weight: 700;
+  .opening-title {
+    font-family: var(--font-hand);
+    font-size: clamp(3rem, 10vw, 6rem);
+    line-height: 1.1; font-weight: 400;
+    color: #fff;
+    text-shadow: 0 0 60px rgba(255,45,149,0.3), 0 0 120px rgba(123,45,142,0.2);
+    margin-bottom: 12px;
+  }
+  .opening-sub {
+    font-family: var(--font-cn);
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    color: var(--dim); line-height: 1.8;
+    max-width: 500px;
+  }
+  .opening-sub strong { color: var(--green); }
+  .opening-meta {
+    display: flex; gap: 20px; margin-top: 24px;
+    flex-wrap: wrap;
+  }
+  .opening-meta span {
     font-family: var(--font-mono);
+    font-size: 12px; color: var(--dim);
+    padding: 6px 14px;
+    border: 1px solid rgba(240,232,248,0.1);
+  }
+  .opening-meta span em {
+    font-style: normal; color: var(--green);
   }
 
-  /* ════════════════ SIGN SECTION ════════════════ */
-  .sign-section { margin-top: 40px; }
-  .sign-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 10px; margin-top: 16px;
+  .scroll-hint {
+    position: absolute; bottom: 20px; left: 50%;
+    transform: translateX(-50%); z-index: 3;
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--dim); letter-spacing: 4px;
+    animation: fadeUpDown 2s ease-in-out infinite;
+    text-align: center;
   }
-  .sign-card {
-    background: var(--card-bg);
-    border: 1px dashed rgba(123,45,142,0.4);
-    border-radius: 4px; padding: 16px 12px;
-    text-align: center; transition: all 0.3s ease;
-    cursor: pointer; position: relative;
+  .scroll-hint::after {
+    content: ''; display: block; width: 1px; height: 30px;
+    background: linear-gradient(var(--dim), transparent);
+    margin: 8px auto 0;
   }
-  .sign-card .sign-num {
-    font-size: 24px; font-weight: 900;
+  @keyframes fadeUpDown {
+    0%,100% { opacity: 0.3; transform: translateX(-50%) translateY(0); }
+    50% { opacity: 0.8; transform: translateX(-50%) translateY(-5px); }
+  }
+
+  /* ═══════ NAV STRIP ═══════ */
+  .nav-strip {
+    position: fixed; top: 0; right: 0;
+    width: 48px; height: 100vh; z-index: 100;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 12px;
+  }
+  .nav-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    border: 1px solid var(--dim);
+    background: transparent;
+    transition: all 0.3s ease; cursor: pointer;
+    position: relative;
+  }
+  .nav-dot:hover, .nav-dot.active {
+    background: var(--green);
+    border-color: var(--green);
+    box-shadow: 0 0 10px var(--green);
+  }
+  .nav-dot::after {
+    content: attr(data-label);
+    position: absolute; right: 20px; top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--font-mono); font-size: 9px;
+    color: var(--dim); white-space: nowrap;
+    letter-spacing: 2px;
+    opacity: 0; transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .nav-dot:hover::after { opacity: 1; }
+
+  /* ═══════ DIAGONAL SECTION BREAK ═══════ */
+  .diag-break {
+    position: relative; height: 120px; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .diag-break::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, transparent 48%, rgba(123,45,142,0.15) 48%, rgba(123,45,142,0.15) 52%, transparent 52%);
+  }
+  .diag-label {
+    position: relative; z-index: 1;
+    font-family: var(--font-mono);
+    font-size: 10px; letter-spacing: 8px;
+    color: rgba(240,232,248,0.15);
+    text-transform: uppercase;
+  }
+
+  /* ═══════ ARTICLES SECTION ═══════ */
+  .articles-section {
+    padding: 60px 0;
+    position: relative;
+  }
+  .articles-section::before {
+    content: ''; position: absolute; top: 0; left: 8vw;
+    width: 1px; height: 100%;
+    background: linear-gradient(transparent, rgba(123,45,142,0.2) 20%, rgba(123,45,142,0.2) 80%, transparent);
+  }
+
+  .section-header {
+    padding: 0 8vw; margin-bottom: 50px;
+    display: flex; align-items: flex-end; gap: 20px;
+  }
+  .section-num {
     font-family: var(--font-tech);
-    color: var(--eva-green);
-    text-shadow: 0 0 8px var(--glow-green);
+    font-size: clamp(4rem, 10vw, 7rem);
+    font-weight: 700; line-height: 0.85;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(240,232,248,0.08);
   }
-  .sign-card .sign-label {
-    font-size: 11px; color: rgba(224,212,240,0.35);
-    margin-top: 4px; font-family: var(--font-mono);
+  .section-label {
+    font-family: var(--font-hand);
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    color: var(--white);
+    margin-bottom: 8px;
   }
-  .sign-card .sign-input {
-    margin-top: 8px; width: 100%;
-    background: rgba(123,45,142,0.1);
-    border: 1px solid rgba(123,45,142,0.25);
-    border-radius: 2px; padding: 7px;
-    color: #fff; font-family: inherit;
-    font-size: 14px; text-align: center;
-    outline: none; transition: all 0.3s;
+
+  .article-row {
+    display: grid;
+    grid-template-columns: 8vw 1fr;
+    gap: 0; margin-bottom: 2px;
+    transition: all 0.4s ease;
+    cursor: default;
   }
-  .sign-card .sign-input:focus {
-    border-color: var(--eva-green);
-    box-shadow: 0 0 10px var(--glow-green);
+  .article-row:hover {
+    background: rgba(123,45,142,0.04);
   }
-  .sign-card .sign-input::placeholder { color: rgba(224,212,240,0.2); }
-  .sign-card.signed {
-    border-style: solid; border-color: var(--eva-green);
-    box-shadow: 0 0 12px var(--glow-green);
+  .article-row:hover .art-line { background: var(--green); }
+  .article-row:hover .art-num { color: var(--green); }
+
+  .art-gutter {
+    display: flex; flex-direction: column;
+    align-items: center; padding-top: 24px;
+    position: relative;
   }
-  .sign-card.signed::after {
-    content: 'APPROVED'; position: absolute; top: 4px; right: 6px;
+  .art-num {
     font-family: var(--font-tech);
-    font-size: 7px; color: var(--eva-green);
-    letter-spacing: 1px;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 2px;
+    color: rgba(240,232,248,0.2);
+    transition: color 0.3s;
+    margin-bottom: 8px;
+  }
+  .art-line {
+    width: 1px; flex: 1;
+    background: rgba(123,45,142,0.15);
+    transition: background 0.3s;
   }
 
-  /* ════════════════ QUOTE ════════════════ */
-  .final-quote {
-    text-align: center; margin-top: 50px;
-    padding: 40px 20px; position: relative;
+  .art-body {
+    padding: 20px 8vw 20px 24px;
+    border-bottom: 1px solid rgba(240,232,248,0.03);
   }
-  .final-quote p {
-    font-size: clamp(1rem, 3vw, 1.3rem);
-    font-weight: 500; font-style: italic;
-    color: rgba(224,212,240,0.5);
-    max-width: 500px; margin: 0 auto;
-    line-height: 1.8;
+  .art-title {
+    font-family: var(--font-cn);
+    font-size: 18px; font-weight: 400;
+    color: var(--white);
+    margin-bottom: 8px;
   }
+  .art-text {
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 14px; line-height: 2;
+    color: rgba(240,232,248,0.55);
+    max-width: 600px;
+  }
+  .art-text strong { color: var(--green); font-weight: 400; }
+  .art-text .bad { color: var(--pink); }
+  .art-text .good { color: var(--green); }
 
-  /* ════════════════ CQ SKYLINE ════════════════ */
-  .skyline-wrapper {
-    position: relative; width: 100%;
-    margin-top: 40px; height: 180px;
+  /* ═══════ SIGNING SECTION ═══════ */
+  .signing-section {
+    position: relative;
+    padding: 80px 0;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: center;
     overflow: hidden;
   }
-  .skyline-svg { width: 100%; height: 100%; }
+  .signing-bg {
+    position: absolute; inset: 0;
+    background: url('https://images.unsplash.com/photo-1706245405770-ed9151cad554?w=1920&q=80&auto=format&fit=crop')
+      center/cover no-repeat;
+    filter: saturate(0.3) brightness(0.15) blur(2px);
+    transform: scale(1.05);
+  }
+  .signing-overlay {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(0deg, var(--black) 0%, transparent 30%),
+      linear-gradient(180deg, var(--black) 0%, transparent 30%),
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px);
+  }
+  .signing-content {
+    position: relative; z-index: 2;
+    padding: 0 8vw;
+  }
+  .signing-header {
+    margin-bottom: 40px;
+  }
+  .signing-header .section-num {
+    -webkit-text-stroke: 1px rgba(68,214,44,0.15);
+  }
+  .signing-stamp {
+    font-family: var(--font-mono);
+    font-size: 10px; letter-spacing: 4px;
+    color: var(--dim);
+    margin-top: 8px;
+  }
 
-  /* ════════════════ SCROLLBAR ════════════════ */
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: var(--eva-darker); }
-  ::-webkit-scrollbar-thumb { background: var(--eva-purple); border-radius: 2px; }
+  .sign-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 8px;
+    max-width: 700px;
+  }
+  .sign-slot {
+    position: relative;
+    aspect-ratio: 1;
+    border: 1px solid rgba(240,232,248,0.06);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    transition: all 0.4s ease;
+    overflow: hidden;
+  }
+  .sign-slot::before {
+    content: ''; position: absolute; inset: 0;
+    background: rgba(123,45,142,0.03);
+    transition: background 0.3s;
+  }
+  .sign-slot:hover::before { background: rgba(68,214,44,0.04); }
+  .sign-slot:hover { border-color: rgba(68,214,44,0.2); }
 
-  /* ════════════════ RESPONSIVE ════════════════ */
+  .sign-idx {
+    font-family: var(--font-tech);
+    font-size: 24px; font-weight: 700;
+    color: rgba(240,232,248,0.06);
+    position: absolute; top: 4px; left: 8px;
+    pointer-events: none;
+    transition: color 0.3s;
+  }
+  .sign-slot:hover .sign-idx { color: rgba(68,214,44,0.15); }
+
+  .sign-input {
+    width: 80%; background: transparent;
+    border: none; border-bottom: 1px solid rgba(240,232,248,0.1);
+    color: var(--white);
+    font-family: var(--font-hand);
+    font-size: 18px; text-align: center;
+    padding: 4px 0; outline: none;
+    transition: all 0.3s;
+    position: relative; z-index: 1;
+  }
+  .sign-input:focus { border-color: var(--green); }
+  .sign-input::placeholder {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 2px;
+    color: rgba(240,232,248,0.12);
+  }
+  .sign-slot.signed { border-color: rgba(68,214,44,0.3); }
+  .sign-slot.signed::after {
+    content: ''; position: absolute;
+    top: 6px; right: 6px;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+  }
+
+  .sign-counter {
+    font-family: var(--font-mono);
+    font-size: 11px; letter-spacing: 3px;
+    color: var(--dim); margin-top: 20px;
+  }
+  .sign-counter em { font-style: normal; color: var(--green); }
+
+  /* ═══════ EXTRAS LINK ═══════ */
+  .extras-link-area {
+    text-align: center; padding: 60px 8vw;
+    position: relative;
+  }
+  .extras-btn {
+    display: inline-block;
+    font-family: var(--font-tech);
+    font-size: 13px; letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--dim);
+    text-decoration: none;
+    padding: 16px 40px;
+    border: 1px solid rgba(240,232,248,0.1);
+    transition: all 0.4s ease;
+    position: relative;
+  }
+  .extras-btn::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,45,149,0.05), rgba(68,214,44,0.05));
+    opacity: 0; transition: opacity 0.4s;
+  }
+  .extras-btn:hover {
+    color: var(--white);
+    border-color: var(--pink);
+    box-shadow: 0 0 30px rgba(255,45,149,0.1);
+  }
+  .extras-btn:hover::before { opacity: 1; }
+
+  /* ═══════ FOOTER ═══════ */
+  .footer-quote {
+    padding: 40px 8vw 60px;
+    text-align: center;
+  }
+  .footer-quote p {
+    font-family: var(--font-hand);
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    color: rgba(240,232,248,0.2);
+    line-height: 2;
+  }
+  .footer-credit {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 3px;
+    color: rgba(240,232,248,0.08);
+    margin-top: 20px;
+  }
+
+  /* ═══════ CANVAS RAIN ═══════ */
+  #rain {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 0;
+    opacity: 0.5;
+  }
+
+  /* ═══════ COUNTDOWN ═══════ */
+  .countdown-strip {
+    position: fixed; bottom: 0; left: 0;
+    width: 100%; z-index: 50;
+    background: rgba(5,2,10,0.8);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(240,232,248,0.04);
+    display: flex; align-items: center;
+    justify-content: center; gap: 8px;
+    padding: 8px 16px;
+    font-family: var(--font-mono);
+    font-size: 11px; color: var(--dim);
+    letter-spacing: 2px;
+  }
+  .countdown-strip .val {
+    color: var(--green);
+    font-size: 14px; font-weight: 700;
+    text-shadow: 0 0 6px rgba(68,214,44,0.4);
+    min-width: 22px; text-align: center;
+  }
+  .countdown-strip .sep { opacity: 0.2; }
+
+  /* ═══════ RESPONSIVE ═══════ */
   @media (max-width: 768px) {
-    .neon-side { display: none; }
-    .nav-links a { padding: 4px 8px; font-size: 9px; }
-    .nav-status { display: none; }
+    .nav-strip { display: none; }
+    .opening-content { padding: 0 6vw 8vh; }
+    .section-header { padding: 0 6vw; }
+    .art-body { padding: 16px 6vw 16px 16px; }
+    .articles-section::before { left: 6vw; }
+    .sign-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); }
+    .signing-content { padding: 0 6vw; }
+    .extras-link-area { padding: 40px 6vw; }
   }
-  @media (max-width: 600px) {
-    .container { padding: 56px 10px 40px; }
-    .article-card { padding: 16px; }
-    .pool-grid { grid-template-columns: 1fr; }
-    .codename-grid { grid-template-columns: repeat(3, 1fr); }
-    .sign-grid { grid-template-columns: repeat(2, 1fr); }
-    .hero { padding: 40px 10px 30px; }
-  }
-
-  /* ═══ GLITCH CELEBRATION ═══ */
-  .glitch-celebrate {
-    animation: glitchCelebrate 0.5s ease;
-  }
-  @keyframes glitchCelebrate {
-    0% { transform: translate(0); filter: hue-rotate(0deg); }
-    10% { transform: translate(-5px, 3px); filter: hue-rotate(90deg); }
-    20% { transform: translate(5px, -3px); filter: hue-rotate(180deg); }
-    30% { transform: translate(-3px, -5px); filter: hue-rotate(270deg); }
-    40% { transform: translate(3px, 5px); filter: hue-rotate(360deg); }
-    50% { transform: translate(0); filter: hue-rotate(0deg); }
-    100% { transform: translate(0); filter: hue-rotate(0deg); }
+  @media (max-width: 480px) {
+    .art-gutter { display: none; }
+    .article-row { grid-template-columns: 1fr; }
+    .articles-section::before { display: none; }
+    .art-body { padding: 16px 6vw; }
+    .art-body::before {
+      content: attr(data-num);
+      font-family: var(--font-tech);
+      font-size: 10px; color: rgba(240,232,248,0.15);
+      letter-spacing: 2px; display: block;
+      margin-bottom: 6px;
+    }
+    .sign-grid { grid-template-columns: repeat(3, 1fr); }
   }
 </style>
 </head>
 <body>
 
-<!-- HUD CORNER LINES -->
-<div class="hud-corner hud-tl"></div>
-<div class="hud-corner hud-tr"></div>
-<div class="hud-corner hud-bl"></div>
-<div class="hud-corner hud-br"></div>
+<canvas id="rain"></canvas>
 
-<!-- AT FIELD HEX BACKGROUND -->
-<div class="hex-bg"></div>
-
-<!-- CYBER RAIN CANVAS -->
-<canvas id="cyberRain"></canvas>
-
-<!-- FOG LAYERS -->
-<div class="fog-layer fog-top"></div>
-<div class="fog-layer fog-mid"></div>
-<div class="fog-layer fog-bottom"></div>
-
-<!-- NEON SIDE TEXT -->
-<div class="neon-side neon-left">不夜重庆</div>
-<div class="neon-side neon-right">火鍋万歳</div>
-
-<!-- CYBERPUNK NAV -->
-<nav class="cyber-nav" id="cyberNav">
-  <div class="nav-logo">
-    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="50,5 93,28 93,72 50,95 7,72 7,28" stroke="#44D62C" stroke-width="3" fill="none"/>
-      <polygon points="50,20 78,35 78,65 50,80 22,65 22,35" stroke="#44D62C" stroke-width="1.5" fill="none" opacity="0.5"/>
-      <text x="50" y="56" text-anchor="middle" fill="#44D62C" font-size="18" font-weight="bold" font-family="Orbitron">N</text>
-    </svg>
-    NERV
-  </div>
-  <div class="nav-links">
-    <a href="#hero">HOME</a>
-    <a href="#ch1">公约</a>
-    <a href="#ch2">惩罚</a>
-    <a href="#ch25">特别</a>
-    <a href="#sign">签署</a>
-  </div>
-  <div class="nav-status">
-    <div class="dot"></div>
-    <span>SYSTEM ACTIVE</span>
-  </div>
+<!-- NAV DOTS -->
+<nav class="nav-strip">
+  <a class="nav-dot" href="#opening" data-label="TOP"></a>
+  <a class="nav-dot" href="#covenant" data-label="公约"></a>
+  <a class="nav-dot" href="#signing" data-label="签署"></a>
 </nav>
 
-<div class="container">
-
-  <!-- ═══════ HERO ═══════ -->
-  <section class="hero" id="hero">
-    <!-- NERV HEXAGONAL LOGO SVG -->
-    <div class="nerv-logo">
-      <svg viewBox="0 0 100 110" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <polygon points="50,3 95,28 95,78 50,103 5,78 5,28" stroke="#44D62C" stroke-width="2" fill="none">
-          <animate attributeName="stroke-opacity" values="0.4;1;0.4" dur="3s" repeatCount="indefinite"/>
-        </polygon>
-        <polygon points="50,15 82,33 82,69 50,87 18,69 18,33" stroke="#7B2D8E" stroke-width="1.5" fill="none" opacity="0.6">
-          <animate attributeName="stroke-opacity" values="0.3;0.8;0.3" dur="3s" repeatCount="indefinite" begin="0.5s"/>
-        </polygon>
-        <polygon points="50,27 69,38 69,60 50,71 31,60 31,38" stroke="#FF6A00" stroke-width="1" fill="none" opacity="0.5">
-          <animate attributeName="stroke-opacity" values="0.2;0.7;0.2" dur="3s" repeatCount="indefinite" begin="1s"/>
-        </polygon>
-        <text x="50" y="58" text-anchor="middle" fill="#44D62C" font-size="22" font-weight="bold" font-family="Orbitron, sans-serif">
-          N
-          <animate attributeName="opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite"/>
-        </text>
-      </svg>
+<!-- ═══════ OPENING CINEMATIC ═══════ -->
+<section class="opening" id="opening">
+  <div class="opening-bg"></div>
+  <div class="opening-overlay"></div>
+  <div class="opening-content">
+    <div class="opening-tag">NERV TRAVEL DIVISION — CHONGQING OPS</div>
+    <h1 class="opening-title">不扫兴<br>欢乐条约</h1>
+    <p class="opening-sub">
+      和你们在一起的时候，<br>
+      <strong>快乐</strong>是唯一的规则。
+    </p>
+    <div class="opening-meta">
+      <span><em>11</em> 人</span>
+      <span><em>04.03</em> — <em>04.06</em></span>
+      <span>重庆</span>
     </div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</section>
 
-    <div class="hero-badge">NERV TRAVEL DIVISION — CHONGQING OPS</div>
+<!-- ═══════ COVENANT ═══════ -->
+<div class="diag-break" id="covenant">
+  <span class="diag-label">SEELE 01 — COVENANT</span>
+</div>
 
-    <div class="glitch-wrapper" data-text="不扫兴 & 欢乐条約">
-      <h1 class="glitch-title">不扫兴 & 欢乐条約</h1>
+<section class="articles-section">
+  <div class="section-header">
+    <div class="section-num">01</div>
+    <div>
+      <div class="section-label">不扫兴公约</div>
     </div>
-
-    <p class="hero-sub">// 本条约经全体 <strong style="color:var(--eva-green)">11</strong> 名成员共同签署后生效</p>
-    <div class="hero-meta">
-      <div class="meta-chip">有效期 <span>04.03 — 04.06</span></div>
-      <div class="meta-chip">成员 <span>11</span></div>
-      <div class="meta-chip">通货 <span>冰粉</span></div>
-    </div>
-    <div class="countdown" id="countdown">
-      <div class="countdown-item"><div class="num" id="cd-days">--</div><div class="label">DAYS</div></div>
-      <div class="countdown-item"><div class="num" id="cd-hours">--</div><div class="label">HRS</div></div>
-      <div class="countdown-item"><div class="num" id="cd-mins">--</div><div class="label">MIN</div></div>
-      <div class="countdown-item"><div class="num" id="cd-secs">--</div><div class="label">SEC</div></div>
-    </div>
-  </section>
-
-  <!-- ═══════ CHAPTER 1 ═══════ -->
-  <div class="seele-divider">SEELE 01 — 不扫兴公约</div>
-  <section class="chapter" id="ch1">
-    <div class="chapter-header">
-      <div class="chapter-number">壹</div>
-      <div class="chapter-title">不扫兴公约</div>
-      <div class="magi-lights">
-        <div class="magi-dot"></div>
-        <div class="magi-dot"></div>
-        <div class="magi-dot"></div>
-        <span class="magi-label">MAGI</span>
-      </div>
-    </div>
-
-    <div class="article-card">
-      <div class="article-num">ART. 01</div>
-      <h3>不催原则</h3>
-      <p>任何人在拍照、吃东西、发呆、上厕所时，不得催促"快点快点"。<br>你可以先走，但不能催别人。</p>
-    </div>
-    <div class="article-card">
-      <div class="article-num">ART. 02</div>
-      <h3>不否原则</h3>
-      <p>当有人提议"我们去看看那个吧"——</p>
-      <ul>
-        <li>可以说"好啊" ✅</li>
-        <li>可以说"我不想去，你们去吧我在这等" ✅</li>
-        <li>不可以说"有什么好看的" / "无聊" / "不去" ❌</li>
-      </ul>
-    </div>
-    <div class="article-card">
-      <div class="article-num">ART. 03</div>
-      <h3>不比原则</h3>
-      <p>不拿"我上次去过更好的地方"来扫兴。<br>我们来重庆不是来评分的，是来一起玩的。</p>
-    </div>
-    <div class="article-card">
-      <div class="article-num">ART. 04</div>
-      <h3>不抱怨天气</h3>
-      <p>下雨了不说"早知道就不来了"。累了不说"走不动了你们自己去"。热了不说"重庆什么鬼天气"。</p>
-      <p style="color:var(--eva-green);margin-top:8px;">// 可以说"我需要休息一下"——然后我们找个地方坐着等你。</p>
-    </div>
-    <div class="article-card">
-      <div class="article-num">ART. 05</div>
-      <h3>不拒绝合影</h3>
-      <p>当有人喊集体合影时，必须参加。表情可以随意，但人必须到。<br><small style="opacity:0.5">（单独拍照可以拒绝，集体照不行）</small></p>
-    </div>
-    <div class="article-card">
-      <div class="article-num">ART. 06</div>
-      <h3>不当手机僵尸</h3>
-      <p>吃饭时间、江边聊天时间、集体活动时间——手机放下来。<br>可以拍照发朋友圈，但不要全程低头刷手机。</p>
-      <p style="color:var(--eva-orange);margin-top:8px;">WARNING: 刷手机的罚给大家表演一个才艺（不会才艺的罚喝一杯）</p>
-    </div>
-    <div class="article-card">
-      <div class="article-num">ART. 07</div>
-      <h3>不独自消失</h3>
-      <p>离开大部队超过10分钟，必须在群里说一声去哪了。<br>不需要请假批准，但要让大家知道你没丢。</p>
-    </div>
-    <div class="article-card">
-      <div class="article-num">ART. 08</div>
-      <h3>包容意外</h3>
-      <p>计划会变。店可能关门，路可能走错，天可能下雨，队可能排爆。</p>
-      <p style="color:var(--eva-green);margin-top:8px;font-weight:700;">// 正确反应：笑一笑，然后说"那我们去干嘛？"</p>
-    </div>
-  </section>
-
-  <!-- ═══════ CHAPTER 2 ═══════ -->
-  <div class="seele-divider">SEELE 02 — 快乐惩罚制度</div>
-  <section class="chapter" id="ch2">
-    <div class="chapter-header">
-      <div class="chapter-number">贰</div>
-      <div class="chapter-title">快乐惩罚制度</div>
-      <div class="magi-lights">
-        <div class="magi-dot"></div>
-        <div class="magi-dot"></div>
-        <div class="magi-dot"></div>
-        <span class="magi-label">MAGI</span>
-      </div>
-    </div>
-
-    <div class="warning-bar">
-      <div class="warning-scroll">警告 WARNING — 惩罚制度启动 PENALTY SYSTEM ACTIVE — 違反者覚悟 — 警告 WARNING — 惩罚制度启动 PENALTY SYSTEM ACTIVE — 違反者覚悟 —</div>
-    </div>
-
-    <div class="article-card">
-      <h3 style="color:var(--eva-orange);">TRIGGER CONDITIONS</h3>
-      <table class="penalty-table">
-        <thead>
-          <tr><th>BEHAVIOR</th><th>NOTE</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>迟到（超过约定时间5分钟）</td><td>集合时间就是集合时间</td></tr>
-          <tr><td>集体合影时不在场</td><td>除非在上厕所</td></tr>
-          <tr><td>说出"无聊""没意思""不想去"三连</td><td>可以不去，但不能扫兴</td></tr>
-          <tr><td>走散后超过10分钟未在群里报位置</td><td>安全第一</td></tr>
-          <tr><td>点菜时说"随便""都行"超过3次</td><td>选择困难症惩罚条款</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="pool-section">
-      <h3 style="font-size:18px;color:#fff;font-family:var(--font-tech);letter-spacing:3px;">PUNISHMENT POOL</h3>
-      <p style="font-size:13px;color:rgba(224,212,240,0.4);margin-top:6px;font-family:var(--font-mono);">// 触发惩罚后 随机抽取一项执行</p>
-      <div class="pool-grid">
-        <div class="pool-item"><div class="num">01</div><div class="text">给全队买一轮冰粉/奶茶</div></div>
-        <div class="pool-item"><div class="num">02</div><div class="text">下一个景点当全队御用摄影师（10分钟内每人至少3张满意照）</div></div>
-        <div class="pool-item"><div class="num">03</div><div class="text">模仿动漫角色经典台词/Pose，大家拍视频</div></div>
-        <div class="pool-item"><div class="num">04</div><div class="text">在江边大声喊出一句话（内容由大家投票决定）</div></div>
-        <div class="pool-item"><div class="num">05</div><div class="text">下一顿饭负责给所有人倒茶/倒酒/盛饭</div></div>
-        <div class="pool-item"><div class="num">06</div><div class="text">真心话一道（由其他10人投票选出问题）</div></div>
-        <div class="pool-item"><div class="num">07</div><div class="text">表演才艺（唱歌/口技/讲笑话，15秒以上）</div></div>
-        <div class="pool-item"><div class="num">08</div><div class="text">下一个打车环节负责所有车的叫车+付款</div></div>
-      </div>
-
-      <div class="sync-area">
-        <div class="sync-ring-wrapper" id="syncRing">
-          <canvas id="syncCanvas" width="400" height="400"></canvas>
-          <div class="sync-text">
-            <span style="font-size:10px;letter-spacing:3px;">SYNC RATE</span>
-            <span class="rate" id="syncRate">0%</span>
-          </div>
-        </div>
-        <button class="sync-btn" id="syncBtn" onclick="startSync()">INITIATE SYNC TEST</button>
-        <div class="sync-result" id="syncResult"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════ CHAPTER 2.5 ═══════ -->
-  <div class="seele-divider">SEELE 03 — 搞怪特別条款</div>
-  <section class="chapter" id="ch25">
-    <div class="chapter-header">
-      <div class="chapter-number" style="background:linear-gradient(135deg,var(--neon-pink),var(--eva-orange));">贰½</div>
-      <div class="chapter-title">搞怪特别条款</div>
-      <div class="magi-lights">
-        <div class="magi-dot"></div>
-        <div class="magi-dot"></div>
-        <div class="magi-dot"></div>
-        <span class="magi-label">MAGI</span>
-      </div>
-    </div>
-
-    <div class="article-card">
-      <div class="article-num" style="background:rgba(255,45,149,0.15);border-color:rgba(255,45,149,0.3);color:var(--neon-pink);">ART. 09</div>
-      <h3>称呼系统</h3>
-      <p>每人出发前抽签获得一个"旅行代号"，全程必须用代号互称。<br><span style="color:var(--eva-orange);">喊真名的罚一次！</span></p>
-      <div class="codename-section">
-        <p style="font-size:11px;color:rgba(224,212,240,0.35);font-family:var(--font-mono);letter-spacing:1px;">// EVA PILOT DESIGNATION POOL</p>
-        <div class="codename-grid" id="codenameGrid">
-          <div class="codename-tag" onclick="assignCodename(this)">碇真嗣<span class="role-label">PILOT 01</span></div>
-          <div class="codename-tag" onclick="assignCodename(this)">绫波丽<span class="role-label">PILOT 00</span></div>
-          <div class="codename-tag" onclick="assignCodename(this)">明日香<span class="role-label">PILOT 02</span></div>
-          <div class="codename-tag" onclick="assignCodename(this)">葛城美里<span class="role-label">CAPTAIN</span></div>
-          <div class="codename-tag" onclick="assignCodename(this)">赤木律子<span class="role-label">SCIENCE</span></div>
-          <div class="codename-tag" onclick="assignCodename(this)">加持良治<span class="role-label">SPECIAL</span></div>
-          <div class="codename-tag" onclick="assignCodename(this)">冬月副司令<span class="role-label">SUB CMD</span></div>
-          <div class="codename-tag" onclick="assignCodename(this)">日向<span class="role-label">OPS-A</span></div>
-          <div class="codename-tag" onclick="assignCodename(this)">青叶<span class="role-label">OPS-B</span></div>
-          <div class="codename-tag" onclick="assignCodename(this)">伊吹<span class="role-label">OPS-C</span></div>
-          <div class="codename-tag" onclick="assignCodename(this)">渚薰<span class="role-label">ANGEL</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="article-card">
-      <div class="article-num" style="background:rgba(255,45,149,0.15);border-color:rgba(255,45,149,0.3);color:var(--neon-pink);">ART. 10</div>
-      <h3>每日MVP & 倒霉蛋</h3>
-      <div class="vote-cards">
-        <div class="vote-card mvp">
-          <div class="vote-icon">🏅</div>
-          <h3>当日MVP</h3>
-          <p>今天给大家带来最多快乐的人<br><strong style="color:gold;">奖励：</strong>第二天睡到自然醒，早餐有人端到床前</p>
-        </div>
-        <div class="vote-card unlucky">
-          <div class="vote-icon">💀</div>
-          <h3>当日倒霉蛋</h3>
-          <p>今天发生最倒霉/最搞笑事件的人<br><strong style="color:#ff3c3c;">惩罚：</strong>第二天早起负责喊全队起床</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="article-card">
-      <div class="article-num" style="background:rgba(255,45,149,0.15);border-color:rgba(255,45,149,0.3);color:var(--neon-pink);">ART. 11</div>
-      <h3>禁止正常Pose条款</h3>
-      <p>集体合影时，<span style="color:var(--eva-orange);font-weight:700;">禁止所有人同时做"剪刀手"</span>。每次合影必须有至少一种创意Pose：</p>
-      <ul>
-        <li>全员模仿同一个动漫角色的招牌动作</li>
-        <li>叠罗汉（安全第一）</li>
-        <li>假装被816洞厅里的东西吓到</li>
-        <li>全员面无表情盯着镜头（比谁先笑）</li>
-      </ul>
-    </div>
-
-    <div class="article-card">
-      <div class="article-num" style="background:rgba(255,45,149,0.15);border-color:rgba(255,45,149,0.3);color:var(--neon-pink);">ART. 14</div>
-      <h3>BGM负责人</h3>
-      <p>全程设一名"气氛DJ"（每天轮换），负责在以下时刻播放合适的BGM：</p>
-      <ul>
-        <li>出发上车 → 播一首燃的出征曲</li>
-        <li>到达景点 → 播该场景对应的动漫BGM（816建议播EVA/Metal Gear配乐）</li>
-        <li>江边喝酒 → 播舒缓的夜晚BGM</li>
-        <li>赶路时 → 播节奏快的行军曲</li>
-      </ul>
-      <p style="color:var(--eva-orange);margin-top:8px;font-family:var(--font-mono);font-size:13px;">WARNING: DJ选歌太烂的 被全员"下课"换人</p>
-    </div>
-
-    <div class="article-card">
-      <div class="article-num" style="background:rgba(255,45,149,0.15);border-color:rgba(255,45,149,0.3);color:var(--neon-pink);">ART. 16</div>
-      <h3>八卦不出团</h3>
-      <p>旅行中所有社死瞬间、醉后发言、真心话内容，仅限团内消化。<br>未经当事人同意，不得向团外第三人传播。</p>
-      <p style="color:var(--eva-red);margin-top:8px;font-weight:700;font-family:var(--font-mono);font-size:13px;">CRITICAL: 违反者永久取消下次集体出游的参与资格</p>
-    </div>
-
-    <div class="article-card">
-      <div class="article-num" style="background:rgba(255,45,149,0.15);border-color:rgba(255,45,149,0.3);color:var(--neon-pink);">ART. 17</div>
-      <h3>冰粉本位制</h3>
-      <p>本次旅行的通用"货币"为冰粉。所有赌注、罚款、赔偿、感谢，均以冰粉为单位结算。</p>
-      <div class="currency-bar">
-        <span class="emoji">🍧</span>
-        <span>"赌你不敢吃烤脑花"</span>
-        <span class="eq">= 1 BOWL</span>
-      </div>
-      <div class="currency-bar">
-        <span class="emoji">🍧</span>
-        <span>"谢谢你帮我拍照"</span>
-        <span class="eq">= 1 BOWL</span>
-      </div>
-      <div class="currency-bar">
-        <span class="emoji">🍧</span>
-        <span>"对不起我迟到了"</span>
-        <span class="eq">= 1 BOWL</span>
-      </div>
-      <p style="text-align:center;margin-top:16px;font-size:13px;color:rgba(224,212,240,0.4);font-family:var(--font-mono);">
-        预计全队三天冰粉消耗量：<strong style="color:var(--eva-orange);font-size:18px;">50+ BOWLS</strong>
-      </p>
-    </div>
-
-    <div class="article-card">
-      <div class="article-num" style="background:rgba(255,45,149,0.15);border-color:rgba(255,45,149,0.3);color:var(--neon-pink);">ART. 18</div>
-      <h3>最终解释权</h3>
-      <p>本条约最终解释权归策划组所有。</p>
-      <p style="color:var(--eva-green);margin-top:8px;font-weight:700;">但如果10个人都觉得策划组的解释不合理，策划组自动触发双倍惩罚。民主万岁！</p>
-    </div>
-  </section>
-
-  <!-- ═══════ SIGN ═══════ -->
-  <div class="seele-divider">AUTHENTICATION REQUIRED</div>
-  <section class="chapter sign-section" id="sign">
-    <div class="chapter-header">
-      <div class="chapter-number" style="background:linear-gradient(135deg,#44D62C,#2aa31e);">签</div>
-      <div class="chapter-title">签署栏 · 全体成员确认</div>
-      <div class="magi-lights">
-        <div class="magi-dot"></div>
-        <div class="magi-dot"></div>
-        <div class="magi-dot"></div>
-        <span class="magi-label">MAGI</span>
-      </div>
-    </div>
-    <p style="font-size:12px;color:rgba(224,212,240,0.35);margin-bottom:8px;font-family:var(--font-mono);letter-spacing:1px;">// INPUT NAME TO AUTHENTICATE</p>
-    <div class="sign-grid" id="signGrid"></div>
-    <div style="text-align:center;margin-top:20px;">
-      <p style="font-size:13px;color:rgba(224,212,240,0.35);font-family:var(--font-mono);" id="signCount">AUTHENTICATED: 0 / 11</p>
-    </div>
-  </section>
-
-  <!-- ═══════ QUOTE ═══════ -->
-  <section class="final-quote">
-    <p>"不是因为旅行有多完美，<br>而是因为和你们在一起。"</p>
-  </section>
-
-  <!-- ═══════ CHONGQING SKYLINE ═══════ -->
-  <div class="skyline-wrapper">
-    <svg class="skyline-svg" viewBox="0 0 1200 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="transparent"/>
-          <stop offset="100%" stop-color="rgba(123,45,142,0.15)"/>
-        </linearGradient>
-      </defs>
-
-      <!-- Background buildings - distant layer -->
-      <path d="M0,180 L0,120 L30,120 L30,100 L50,100 L50,90 L60,90 L60,80 L80,80 L80,95 L100,95 L100,70 L110,70 L110,85 L130,85 L130,60 L140,60 L140,55 L150,55 L150,65 L160,65 L160,90 L180,90 L180,75 L200,75 L200,60 L210,60 L210,50 L220,50 L220,70 L240,70 L240,85 L260,85 L260,100 L280,100 L280,80 L300,80 L300,65 L310,65 L310,55 L315,45 L320,55 L320,70 L340,70 L340,90 L360,90 L360,70 L380,70 L380,55 L390,55 L390,40 L395,30 L400,40 L400,60 L420,60 L420,80 L440,80 L440,95 L460,95 L460,75 L470,75 L470,50 L480,50 L480,35 L490,35 L490,30 L500,30 L500,45 L510,45 L510,65 L530,65 L530,80 L550,80 L550,60 L560,60 L560,45 L570,45 L570,55 L580,55 L580,70 L600,70 L600,90 L620,90 L620,75 L640,75 L640,55 L650,55 L650,40 L660,40 L660,55 L680,55 L680,70 L700,70 L700,50 L710,50 L710,35 L720,35 L720,25 L725,20 L730,25 L730,40 L740,40 L740,55 L760,55 L760,75 L780,75 L780,90 L800,90 L800,70 L820,70 L820,55 L830,55 L830,45 L840,45 L840,60 L860,60 L860,80 L880,80 L880,65 L900,65 L900,50 L910,50 L910,40 L920,40 L920,55 L940,55 L940,70 L960,70 L960,85 L980,85 L980,100 L1000,100 L1000,80 L1020,80 L1020,90 L1040,90 L1040,75 L1060,75 L1060,85 L1080,85 L1080,95 L1100,95 L1100,80 L1120,80 L1120,90 L1140,90 L1140,100 L1160,100 L1160,110 L1180,110 L1180,120 L1200,120 L1200,200 L0,200 Z"
-            fill="url(#skyGrad)" opacity="0.5"/>
-
-      <!-- Foreground buildings - closer layer -->
-      <path d="M0,200 L0,150 L40,150 L40,130 L60,130 L60,140 L80,140 L80,155 L120,155 L120,135 L140,135 L140,120 L150,120 L150,110 L155,95 L160,110 L160,125 L180,125 L180,140 L220,140 L220,155 L260,155 L260,140 L280,140 L280,120 L290,120 L290,105 L300,105 L300,115 L320,115 L320,130 L360,130 L360,145 L400,145 L400,130 L420,130 L420,145 L460,145 L460,130 L480,130 L480,110 L490,110 L490,95 L500,95 L500,110 L520,110 L520,130 L560,130 L560,145 L600,145 L600,135 L620,135 L620,120 L640,120 L640,105 L650,105 L650,95 L660,95 L660,105 L680,105 L680,120 L720,120 L720,135 L760,135 L760,145 L800,145 L800,130 L820,130 L820,140 L860,140 L860,150 L900,150 L900,140 L920,140 L920,130 L940,130 L940,145 L980,145 L980,155 L1020,155 L1020,140 L1040,140 L1040,150 L1080,150 L1080,160 L1120,160 L1120,150 L1160,150 L1160,160 L1200,160 L1200,200 Z"
-            fill="rgba(20,8,45,0.7)"/>
-
-      <!-- Hongyadong-inspired stacked building -->
-      <g opacity="0.6" id="hongyadong">
-        <rect x="145" y="95" width="20" height="15" fill="none" stroke="rgba(255,200,0,0.3)" stroke-width="0.5"/>
-        <rect x="147" y="98" width="4" height="4" fill="rgba(255,200,0,0.2)"><animate attributeName="opacity" values="0.1;0.5;0.1" dur="3s" repeatCount="indefinite"/></rect>
-        <rect x="153" y="98" width="4" height="4" fill="rgba(255,200,0,0.3)"><animate attributeName="opacity" values="0.3;0.1;0.3" dur="2.5s" repeatCount="indefinite"/></rect>
-        <rect x="159" y="98" width="4" height="4" fill="rgba(255,200,0,0.2)"><animate attributeName="opacity" values="0.1;0.4;0.1" dur="4s" repeatCount="indefinite"/></rect>
-      </g>
-
-      <!-- Qiansimen bridge cables -->
-      <g opacity="0.3">
-        <line x1="300" y1="105" x2="340" y2="130" stroke="var(--neon-blue)" stroke-width="0.5">
-          <animate attributeName="stroke-opacity" values="0.2;0.5;0.2" dur="4s" repeatCount="indefinite"/>
-        </line>
-        <line x1="310" y1="105" x2="350" y2="130" stroke="var(--neon-blue)" stroke-width="0.5">
-          <animate attributeName="stroke-opacity" values="0.3;0.1;0.3" dur="3s" repeatCount="indefinite"/>
-        </line>
-        <line x1="320" y1="105" x2="360" y2="130" stroke="var(--neon-blue)" stroke-width="0.5">
-          <animate attributeName="stroke-opacity" values="0.1;0.4;0.1" dur="5s" repeatCount="indefinite"/>
-        </line>
-      </g>
-
-      <!-- Jiefangbei obelisk -->
-      <g opacity="0.5">
-        <rect x="723" y="25" width="4" height="15" fill="rgba(255,106,0,0.4)"/>
-        <polygon points="725,20 722,28 728,28" fill="rgba(255,106,0,0.5)">
-          <animate attributeName="fill-opacity" values="0.3;0.7;0.3" dur="2s" repeatCount="indefinite"/>
-        </polygon>
-      </g>
-
-      <!-- Scattered window lights -->
-      <g class="window-lights">
-        <rect x="102" y="72" width="3" height="3" fill="rgba(255,200,0,0.4)"><animate attributeName="opacity" values="0.2;0.8;0.2" dur="2s" repeatCount="indefinite"/></rect>
-        <rect x="212" y="52" width="3" height="3" fill="rgba(255,200,0,0.3)"><animate attributeName="opacity" values="0.5;0.1;0.5" dur="3s" repeatCount="indefinite"/></rect>
-        <rect x="392" y="42" width="3" height="3" fill="rgba(255,150,0,0.4)"><animate attributeName="opacity" values="0.1;0.6;0.1" dur="2.5s" repeatCount="indefinite"/></rect>
-        <rect x="472" y="37" width="3" height="3" fill="rgba(255,200,0,0.3)"><animate attributeName="opacity" values="0.4;0.1;0.4" dur="4s" repeatCount="indefinite"/></rect>
-        <rect x="562" y="47" width="3" height="3" fill="rgba(255,200,0,0.5)"><animate attributeName="opacity" values="0.1;0.7;0.1" dur="1.8s" repeatCount="indefinite"/></rect>
-        <rect x="652" y="42" width="3" height="3" fill="rgba(255,150,0,0.3)"><animate attributeName="opacity" values="0.3;0.1;0.3" dur="3.5s" repeatCount="indefinite"/></rect>
-        <rect x="712" y="37" width="3" height="3" fill="rgba(255,200,0,0.4)"><animate attributeName="opacity" values="0.1;0.5;0.1" dur="2.8s" repeatCount="indefinite"/></rect>
-        <rect x="832" y="47" width="3" height="3" fill="rgba(255,200,0,0.3)"><animate attributeName="opacity" values="0.2;0.6;0.2" dur="3.2s" repeatCount="indefinite"/></rect>
-        <rect x="912" y="42" width="3" height="3" fill="rgba(255,150,0,0.5)"><animate attributeName="opacity" values="0.5;0.2;0.5" dur="2.2s" repeatCount="indefinite"/></rect>
-        <rect x="492" y="32" width="2" height="2" fill="rgba(255,45,149,0.4)"><animate attributeName="opacity" values="0.1;0.8;0.1" dur="1.5s" repeatCount="indefinite"/></rect>
-        <rect x="742" y="42" width="2" height="2" fill="rgba(0,229,255,0.4)"><animate attributeName="opacity" values="0.3;0.1;0.3" dur="2.7s" repeatCount="indefinite"/></rect>
-      </g>
-
-      <!-- Water reflection at bottom -->
-      <rect x="0" y="185" width="1200" height="15" fill="rgba(0,229,255,0.03)">
-        <animate attributeName="opacity" values="0.5;1;0.5" dur="4s" repeatCount="indefinite"/>
-      </rect>
-    </svg>
   </div>
 
+  <div class="article-row">
+    <div class="art-gutter"><span class="art-num">01</span><div class="art-line"></div></div>
+    <div class="art-body" data-num="01">
+      <div class="art-title">不催原则</div>
+      <div class="art-text">任何人在拍照、吃东西、发呆、上厕所时，不得催促"快点快点"。<br>你可以先走，但不能催别人。</div>
+    </div>
+  </div>
+
+  <div class="article-row">
+    <div class="art-gutter"><span class="art-num">02</span><div class="art-line"></div></div>
+    <div class="art-body" data-num="02">
+      <div class="art-title">不否原则</div>
+      <div class="art-text">
+        当有人提议"我们去看看那个吧"——<br>
+        <span class="good">可以说"好啊"</span><br>
+        <span class="good">可以说"我不想去，你们去吧我在这等"</span><br>
+        <span class="bad">不可以说"有什么好看的" / "无聊" / "不去"</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="article-row">
+    <div class="art-gutter"><span class="art-num">03</span><div class="art-line"></div></div>
+    <div class="art-body" data-num="03">
+      <div class="art-title">不比原则</div>
+      <div class="art-text">不拿"我上次去过更好的地方"来扫兴。<br>我们来重庆不是来评分的，是来一起玩的。</div>
+    </div>
+  </div>
+
+  <div class="article-row">
+    <div class="art-gutter"><span class="art-num">04</span><div class="art-line"></div></div>
+    <div class="art-body" data-num="04">
+      <div class="art-title">不抱怨天气</div>
+      <div class="art-text">下雨了不说"早知道就不来了"。累了不说"走不动了你们自己去"。<br><strong>可以说"我需要休息一下"——然后我们找个地方坐着等你。</strong></div>
+    </div>
+  </div>
+
+  <div class="article-row">
+    <div class="art-gutter"><span class="art-num">05</span><div class="art-line"></div></div>
+    <div class="art-body" data-num="05">
+      <div class="art-title">不拒绝合影</div>
+      <div class="art-text">当有人喊集体合影时，必须参加。表情可以随意，但人必须到。</div>
+    </div>
+  </div>
+
+  <div class="article-row">
+    <div class="art-gutter"><span class="art-num">06</span><div class="art-line"></div></div>
+    <div class="art-body" data-num="06">
+      <div class="art-title">不当手机僵尸</div>
+      <div class="art-text">吃饭、江边聊天、集体活动时间——手机放下来。<br><span class="bad">刷手机的罚给大家表演一个才艺。</span></div>
+    </div>
+  </div>
+
+  <div class="article-row">
+    <div class="art-gutter"><span class="art-num">07</span><div class="art-line"></div></div>
+    <div class="art-body" data-num="07">
+      <div class="art-title">不独自消失</div>
+      <div class="art-text">离开大部队超过10分钟，在群里说一声去哪了。<br>不需要请假批准，但要让大家知道你没丢。</div>
+    </div>
+  </div>
+
+  <div class="article-row">
+    <div class="art-gutter"><span class="art-num">08</span><div class="art-line"></div></div>
+    <div class="art-body" data-num="08">
+      <div class="art-title">包容意外</div>
+      <div class="art-text">计划会变。店可能关门，路可能走错，天可能下雨。<br><strong>正确反应：笑一笑，然后说"那我们去干嘛？"</strong></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SIGNING ═══════ -->
+<div class="diag-break" id="signing">
+  <span class="diag-label">AUTHENTICATION</span>
+</div>
+
+<section class="signing-section">
+  <div class="signing-bg"></div>
+  <div class="signing-overlay"></div>
+  <div class="signing-content">
+    <div class="signing-header">
+      <div class="section-header" style="padding:0;margin-bottom:12px;">
+        <div class="section-num" style="-webkit-text-stroke-color:rgba(68,214,44,0.1);">02</div>
+        <div class="section-label">签署栏</div>
+      </div>
+      <div class="signing-stamp">本条约经全体成员确认知悉并同意遵守</div>
+    </div>
+    <div class="sign-grid" id="signGrid"></div>
+    <div class="sign-counter" id="signCounter">AUTHENTICATED <em>0</em> / <em>11</em></div>
+  </div>
+</section>
+
+<!-- ═══════ EXTRAS LINK ═══════ -->
+<div class="extras-link-area">
+  <a class="extras-btn" href="extras.html">进入惩罚制度 & 搞怪条款 →</a>
+</div>
+
+<!-- ═══════ FOOTER ═══════ -->
+<footer class="footer-quote">
+  <p>"不是因为旅行有多完美，<br>而是因为和你们在一起。"</p>
+  <div class="footer-credit">NERV TRAVEL DIVISION // CHONGQING 2026</div>
+</footer>
+
+<!-- ═══════ COUNTDOWN ═══════ -->
+<div class="countdown-strip">
+  <span>DEPARTURE</span>
+  <span class="val" id="cd-d">--</span><span>D</span>
+  <span class="sep">:</span>
+  <span class="val" id="cd-h">--</span><span>H</span>
+  <span class="sep">:</span>
+  <span class="val" id="cd-m">--</span><span>M</span>
+  <span class="sep">:</span>
+  <span class="val" id="cd-s">--</span><span>S</span>
 </div>
 
 <script>
-// ═══════ CYBER RAIN + KATAKANA MATRIX ═══════
-(function() {
-  const canvas = document.getElementById('cyberRain');
-  const ctx = canvas.getContext('2d');
-  let w, h, columns, drops;
-
-  const katakana = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
-  const chars = katakana + '0123456789';
-
+/* ═══ RAIN ═══ */
+(function(){
+  const c = document.getElementById('rain');
+  const ctx = c.getContext('2d');
+  const kata = 'アイウエオカキクケコサシスセソタチツテトナニヌネノ';
+  let w, h, cols, drops;
   function resize() {
-    w = canvas.width = window.innerWidth;
-    h = canvas.height = window.innerHeight;
-    const fontSize = 14;
-    columns = Math.floor(w / fontSize);
-    drops = new Array(columns).fill(1).map(() => Math.random() * -100);
+    w = c.width = innerWidth;
+    h = c.height = innerHeight;
+    cols = Math.floor(w / 16);
+    drops = Array(cols).fill(0).map(() => Math.random() * -50);
   }
   resize();
-  window.addEventListener('resize', resize);
-
+  addEventListener('resize', resize);
   function draw() {
-    ctx.fillStyle = 'rgba(8,2,15,0.08)';
+    ctx.fillStyle = 'rgba(5,2,10,0.06)';
     ctx.fillRect(0, 0, w, h);
-    ctx.font = '14px "Share Tech Mono", monospace';
-
-    for (let i = 0; i < columns; i++) {
-      if (Math.random() > 0.97) {
-        const char = chars[Math.floor(Math.random() * chars.length)];
-        const x = i * 14;
-        const y = drops[i] * 14;
-        const isKata = katakana.includes(char);
-        ctx.fillStyle = isKata
-          ? `rgba(68,214,44,${Math.random()*0.3+0.05})`
-          : `rgba(123,45,142,${Math.random()*0.2+0.03})`;
-        ctx.fillText(char, x, y);
+    for (let i = 0; i < cols; i++) {
+      if (Math.random() > 0.96) {
+        ctx.font = '14px "Share Tech Mono"';
+        ctx.fillStyle = `rgba(68,214,44,${Math.random()*0.15+0.02})`;
+        ctx.fillText(kata[Math.floor(Math.random()*kata.length)], i*16, drops[i]*16);
       }
-      drops[i]++;
-      if (drops[i] * 14 > h && Math.random() > 0.98) {
-        drops[i] = 0;
-      }
+      drops[i] += 0.3 + Math.random() * 0.2;
+      if (drops[i]*16 > h && Math.random() > 0.99) drops[i] = 0;
     }
-
-    // Rain streaks
-    ctx.strokeStyle = 'rgba(200,220,255,0.03)';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < 3; i++) {
-      const x = Math.random() * w;
-      const y = Math.random() * h;
-      const len = Math.random() * 30 + 10;
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.lineTo(x - 1, y + len);
-      ctx.stroke();
-    }
-
     requestAnimationFrame(draw);
   }
   draw();
 })();
 
-// ═══════ SCROLL ANIMATIONS ═══════
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.1 });
-document.querySelectorAll('.chapter').forEach(ch => observer.observe(ch));
-
-// ═══════ NAV SCROLL BEHAVIOR ═══════
-let lastScroll = 0;
-window.addEventListener('scroll', () => {
-  const nav = document.getElementById('cyberNav');
-  const cur = window.scrollY;
-  nav.classList.toggle('hidden', cur > lastScroll && cur > 200);
-  lastScroll = cur;
-});
-
-// ═══════ COUNTDOWN ═══════
-function updateCountdown() {
-  const target = new Date('2026-04-03T18:00:00+08:00');
-  const now = new Date();
-  let diff = target - now;
-  if (diff < 0) {
-    ['cd-days','cd-hours','cd-mins','cd-secs'].forEach((id, i) => {
-      document.getElementById(id).textContent = ['GO','! ','出','发'][i];
-    });
-    return;
-  }
-  const d = Math.floor(diff / 86400000); diff %= 86400000;
-  const h = Math.floor(diff / 3600000); diff %= 3600000;
-  const m = Math.floor(diff / 60000); diff %= 60000;
-  const s = Math.floor(diff / 1000);
-  document.getElementById('cd-days').textContent = String(d).padStart(2,'0');
-  document.getElementById('cd-hours').textContent = String(h).padStart(2,'0');
-  document.getElementById('cd-mins').textContent = String(m).padStart(2,'0');
-  document.getElementById('cd-secs').textContent = String(s).padStart(2,'0');
+/* ═══ COUNTDOWN ═══ */
+function cd() {
+  const t = new Date('2026-04-03T18:00:00+08:00') - new Date();
+  if (t < 0) { document.querySelector('.countdown-strip').innerHTML = '<span style="color:var(--green);letter-spacing:6px;">DEPARTURE NOW</span>'; return; }
+  const d = Math.floor(t/864e5), h = Math.floor(t%864e5/36e5), m = Math.floor(t%36e5/6e4), s = Math.floor(t%6e4/1e3);
+  document.getElementById('cd-d').textContent = String(d).padStart(2,'0');
+  document.getElementById('cd-h').textContent = String(h).padStart(2,'0');
+  document.getElementById('cd-m').textContent = String(m).padStart(2,'0');
+  document.getElementById('cd-s').textContent = String(s).padStart(2,'0');
 }
-updateCountdown();
-setInterval(updateCountdown, 1000);
+cd(); setInterval(cd, 1000);
 
-// ═══════ EVA SYNC RATE SPINNER ═══════
-const punishments = [
-  '🍧 给全队买一轮冰粉/奶茶！',
-  '📸 下一个景点当全队御用摄影师！',
-  '🎭 模仿动漫角色经典台词/Pose！',
-  '📣 在江边大声喊出指定的话！',
-  '🍵 下一顿饭负责倒茶/倒酒/盛饭！',
-  '💬 真心话一道（其他10人出题）！',
-  '🎤 表演才艺（15秒以上）！',
-  '🚕 下一个打车环节全包！'
-];
-
-function startSync() {
-  const btn = document.getElementById('syncBtn');
-  const ring = document.getElementById('syncRing');
-  const canvas = document.getElementById('syncCanvas');
-  const rateEl = document.getElementById('syncRate');
-  const result = document.getElementById('syncResult');
-  if (btn.disabled) return;
-  btn.disabled = true;
-  btn.textContent = 'SYNCHRONIZING...';
-  ring.style.display = 'block';
-  result.style.display = 'none';
-
-  const ctx = canvas.getContext('2d');
-  const cw = 400, ch = 400, cx = 200, cy = 200, r = 160;
-  let progress = 0;
-  const targetRate = Math.floor(Math.random() * 60) + 40;
-  const totalFrames = 120;
-  let frame = 0;
-
-  function drawRing() {
-    ctx.clearRect(0, 0, cw, ch);
-
-    // BG ring
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(123,45,142,0.2)';
-    ctx.lineWidth = 8;
-    ctx.stroke();
-
-    // Tick marks
-    for (let i = 0; i < 36; i++) {
-      const a = (i / 36) * Math.PI * 2 - Math.PI / 2;
-      const inner = r - 15;
-      const outer = r - 8;
-      ctx.beginPath();
-      ctx.moveTo(cx + Math.cos(a) * inner, cy + Math.sin(a) * inner);
-      ctx.lineTo(cx + Math.cos(a) * outer, cy + Math.sin(a) * outer);
-      ctx.strokeStyle = i / 36 <= progress ? 'rgba(68,214,44,0.6)' : 'rgba(123,45,142,0.15)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-
-    // Progress arc
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + progress * Math.PI * 2);
-    const grad = ctx.createLinearGradient(0, 0, cw, ch);
-    grad.addColorStop(0, '#44D62C');
-    grad.addColorStop(0.5, '#FF6A00');
-    grad.addColorStop(1, '#ff2d95');
-    ctx.strokeStyle = grad;
-    ctx.lineWidth = 8;
-    ctx.lineCap = 'round';
-    ctx.stroke();
-
-    // Glow
-    ctx.shadowColor = '#44D62C';
-    ctx.shadowBlur = 20;
-    ctx.beginPath();
-    const endAngle = -Math.PI / 2 + progress * Math.PI * 2;
-    ctx.arc(cx + Math.cos(endAngle) * r, cy + Math.sin(endAngle) * r, 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#44D62C';
-    ctx.fill();
-    ctx.shadowBlur = 0;
-  }
-
-  function animate() {
-    frame++;
-    const eased = 1 - Math.pow(1 - frame / totalFrames, 3);
-    progress = eased;
-    const currentRate = Math.floor(eased * targetRate);
-    rateEl.textContent = currentRate + '%';
-    drawRing();
-
-    if (frame < totalFrames) {
-      requestAnimationFrame(animate);
-    } else {
-      const final = Math.floor(Math.random() * punishments.length);
-      result.textContent = `SYNC COMPLETE — ${punishments[final]}`;
-      result.style.display = 'block';
-      result.style.animation = 'none';
-      void result.offsetWidth;
-      result.style.animation = 'popIn 0.4s cubic-bezier(.17,.67,.35,1.4)';
-      btn.disabled = false;
-      btn.textContent = 'INITIATE SYNC TEST';
-      setTimeout(() => { ring.style.display = 'none'; }, 2000);
-    }
-  }
-  animate();
-}
-
-// ═══════ CODENAME ═══════
-function assignCodename(el) {
-  el.style.transform = 'scale(1.1) rotate(' + (Math.random()*6-3) + 'deg)';
-  el.style.borderColor = 'var(--eva-green)';
-  el.style.boxShadow = '0 0 20px var(--glow-green)';
-  el.style.textShadow = '0 0 8px var(--glow-green)';
-  setTimeout(() => { el.style.transform = ''; }, 300);
-}
-
-// ═══════ SIGN GRID ═══════
-(function() {
-  const grid = document.getElementById('signGrid');
+/* ═══ SIGN ═══ */
+(function(){
+  const g = document.getElementById('signGrid');
   for (let i = 1; i <= 11; i++) {
-    const card = document.createElement('div');
-    card.className = 'sign-card';
-    card.innerHTML = `
-      <div class="sign-num">#${String(i).padStart(2,'0')}</div>
-      <div class="sign-label">MEMBER ${String(i).padStart(2,'0')}</div>
-      <input class="sign-input" type="text" placeholder="签名..." maxlength="10"
-             onchange="handleSign(this)" onfocus="this.parentElement.style.transform='scale(1.02)'"
-             onblur="this.parentElement.style.transform=''">
-    `;
-    grid.appendChild(card);
+    const s = document.createElement('div');
+    s.className = 'sign-slot';
+    s.innerHTML = `<span class="sign-idx">${String(i).padStart(2,'0')}</span><input class="sign-input" type="text" placeholder="SIGN" maxlength="8" onchange="doSign(this)">`;
+    g.appendChild(s);
   }
 })();
-
-function handleSign(input) {
-  const card = input.parentElement;
-  if (input.value.trim()) {
-    card.classList.add('signed');
+function doSign(el) {
+  const slot = el.parentElement;
+  slot.classList.toggle('signed', el.value.trim().length > 0);
+  const n = document.querySelectorAll('.sign-slot.signed').length;
+  const counter = document.getElementById('signCounter');
+  if (n === 11) {
+    counter.innerHTML = '<em style="font-size:14px;letter-spacing:4px;">ALL AUTHENTICATED — 条约生效</em>';
   } else {
-    card.classList.remove('signed');
-  }
-  const count = document.querySelectorAll('.sign-card.signed').length;
-  document.getElementById('signCount').textContent = `AUTHENTICATED: ${count} / 11`;
-  if (count === 11) {
-    const el = document.getElementById('signCount');
-    el.innerHTML = '<span style="color:var(--eva-green);font-size:16px;font-weight:700;letter-spacing:3px;">ALL MEMBERS AUTHENTICATED — 条约正式生效</span>';
-    el.classList.add('glitch-celebrate');
-    confetti();
+    counter.innerHTML = `AUTHENTICATED <em>${n}</em> / <em>11</em>`;
   }
 }
 
-function confetti() {
-  const colors = ['#7B2D8E','#44D62C','#FF6A00','#ff2d95','#FFD700','#00e5ff'];
-  for (let i = 0; i < 80; i++) {
-    const c = document.createElement('div');
-    c.style.cssText = `
-      position:fixed;z-index:9999;
-      width:${Math.random()*6+3}px;height:${Math.random()*6+3}px;
-      background:${colors[Math.floor(Math.random()*colors.length)]};
-      left:${Math.random()*100}vw;top:-10px;
-      border-radius:${Math.random()>0.5?'50%':'1px'};
-      pointer-events:none;opacity:0;
-      animation:confettiFall ${Math.random()*2+2}s ease-in forwards;
-      animation-delay:${Math.random()*0.5}s;
-    `;
-    document.body.appendChild(c);
-    setTimeout(() => c.remove(), 4000);
-  }
-}
-
-const confettiStyle = document.createElement('style');
-confettiStyle.textContent = `
-  @keyframes confettiFall {
-    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-  }
-`;
-document.head.appendChild(confettiStyle);
-
-// ═══════ NAV ACTIVE LINK ═══════
-const sections = ['hero','ch1','ch2','ch25','sign'];
-window.addEventListener('scroll', () => {
-  const scrollPos = window.scrollY + 100;
-  sections.forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const link = document.querySelector(`.nav-links a[href="#${id}"]`);
-    if (!link) return;
-    if (el.offsetTop <= scrollPos && el.offsetTop + el.offsetHeight > scrollPos) {
-      link.classList.add('active');
-    } else {
-      link.classList.remove('active');
-    }
-  });
+/* ═══ NAV ACTIVE ═══ */
+const secs = document.querySelectorAll('[id]');
+const dots = document.querySelectorAll('.nav-dot');
+addEventListener('scroll', () => {
+  const y = scrollY + innerHeight / 2;
+  dots.forEach(d => d.classList.remove('active'));
+  let cur = null;
+  secs.forEach(s => { if (s.offsetTop <= y) cur = s.id; });
+  const map = { opening: 0, covenant: 1, signing: 2 };
+  if (cur && map[cur] !== undefined && dots[map[cur]]) dots[map[cur]].classList.add('active');
 });
 </script>
-
 </body>
 </html>
