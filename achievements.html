@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>成就追踪 // ACHIEVEMENT TRACKER</title>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+QingKe+HuangYou&family=Chakra+Petch:wght@400;600;700&family=Share+Tech+Mono&family=Noto+Sans+SC:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --eva-purple:#7B2D8E;--eva-purple-light:#A855F7;--eva-purple-dark:#3D1A4A;
+  --eva-green:#44D62C;--eva-green-dim:#2CA01E;--eva-green-glow:#6AFF50;
+  --eva-orange:#FF6A00;--eva-black:#0A0412;--eva-white:#E8DCF5;
+  --glass:rgba(10,4,18,0.55);--glass-border:rgba(123,45,142,0.18);
+  --font-title:'Ma Shan Zheng',cursive;
+  --font-cn:'ZCOOL QingKe HuangYou',sans-serif;
+  --font-tech:'Chakra Petch',sans-serif;
+  --font-mono:'Share Tech Mono',monospace;
+  --ease-out-expo:cubic-bezier(0.16,1,0.3,1);
+  --ease-spring:cubic-bezier(0.34,1.56,0.64,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--eva-black);color:var(--eva-white);font-family:'Noto Sans SC',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+.scanlines{position:fixed;inset:0;z-index:998;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(10,4,18,0.03) 3px,rgba(10,4,18,0.03) 4px);}
+.stripe{position:fixed;left:0;right:0;height:2px;z-index:1001;
+  background:repeating-linear-gradient(90deg,var(--eva-purple) 0,var(--eva-purple) 16px,var(--eva-green) 16px,var(--eva-green) 32px);opacity:0.5;}
+.stripe.t{top:0;}.stripe.b{bottom:0;}
+
+.nav{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:1000;
+  display:flex;gap:3px;padding:4px 6px;border-radius:40px;
+  background:var(--glass);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);
+  border:1px solid var(--glass-border);}
+.nav a{font-family:var(--font-tech);font-size:10px;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;text-decoration:none;color:rgba(232,220,245,0.35);
+  padding:8px 16px;border-radius:30px;transition:all 0.4s var(--ease-out-expo);}
+.nav a:hover{color:var(--eva-green);}
+.nav a.active{color:var(--eva-black);background:linear-gradient(135deg,var(--eva-green),#5AE040);box-shadow:0 0 20px rgba(68,214,44,0.2);}
+.nav .div{width:1px;height:16px;background:rgba(123,45,142,0.2);margin:auto 4px;flex-shrink:0;}
+
+.hero{padding:120px 40px 40px;text-align:center;}
+.hero-label{font-family:var(--font-mono);font-size:9px;letter-spacing:6px;color:var(--eva-purple-light);opacity:0.4;}
+.hero h1{font-family:var(--font-title);font-size:clamp(36px,8vw,56px);
+  background:linear-gradient(180deg,var(--eva-green) 30%,var(--eva-green-dim));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 30px rgba(68,214,44,0.15));letter-spacing:6px;margin:8px 0;}
+.hero h1 em{font-style:normal;background:linear-gradient(180deg,var(--eva-purple-light),var(--eva-purple));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-sub{font-family:var(--font-tech);font-size:11px;font-weight:700;letter-spacing:8px;color:var(--eva-purple-light);opacity:0.25;}
+
+.stats-bar{
+  display:flex;justify-content:center;gap:32px;padding:20px;margin-bottom:20px;
+}
+.stat{text-align:center;}
+.stat-val{font-family:var(--font-mono);font-size:28px;color:var(--eva-green);text-shadow:0 0 16px rgba(68,214,44,0.15);}
+.stat-label{font-family:var(--font-mono);font-size:8px;letter-spacing:3px;color:var(--eva-purple-light);opacity:0.3;margin-top:2px;}
+
+/* category tabs */
+.cat-tabs{
+  display:flex;justify-content:center;gap:6px;flex-wrap:wrap;
+  padding:10px 20px 30px;position:sticky;top:56px;z-index:100;
+  background:linear-gradient(var(--eva-black) 60%,transparent);
+}
+.cat-tab{
+  font-family:var(--font-tech);font-size:10px;font-weight:700;letter-spacing:2px;
+  padding:8px 18px;border-radius:30px;cursor:pointer;
+  border:1px solid var(--glass-border);background:var(--glass);
+  backdrop-filter:blur(20px);color:rgba(232,220,245,0.3);
+  transition:all 0.4s var(--ease-out-expo);
+}
+.cat-tab:hover{color:var(--eva-green);border-color:rgba(68,214,44,0.2);}
+.cat-tab.active{color:var(--eva-black);background:var(--eva-green);border-color:var(--eva-green);}
+
+/* achievement grid */
+.ach-section{max-width:800px;margin:0 auto;padding:0 20px;}
+.ach-cat{display:none;}.ach-cat.visible{display:block;}
+.ach-cat-header{
+  display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-left:4px;
+}
+.ach-cat-icon{font-size:24px;filter:grayscale(0.3);}
+.ach-cat-title{font-family:var(--font-title);font-size:24px;color:var(--eva-green);letter-spacing:4px;}
+.ach-cat-count{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;color:var(--eva-purple-light);opacity:0.3;}
+
+.ach-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:50px;}
+
+.ach-card{
+  background:var(--glass);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);
+  border:1px solid var(--glass-border);border-radius:14px;
+  padding:18px 22px;cursor:pointer;
+  transition:all 0.4s var(--ease-out-expo);position:relative;overflow:hidden;
+}
+.ach-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;
+  background:var(--eva-purple);opacity:0.3;transition:all 0.4s;}
+.ach-card:hover{transform:translateX(4px);border-color:rgba(123,45,142,0.3);}
+.ach-card.achieved{border-color:rgba(68,214,44,0.25);}
+.ach-card.achieved::before{background:var(--eva-green);opacity:0.8;box-shadow:0 0 10px rgba(68,214,44,0.3);}
+
+.ach-top{display:flex;align-items:center;gap:12px;}
+.ach-stars{font-family:var(--font-mono);font-size:12px;flex-shrink:0;letter-spacing:1px;}
+.ach-stars.s1{color:rgba(232,220,245,0.3);}
+.ach-stars.s2{color:var(--eva-purple-light);}
+.ach-stars.s3{color:var(--eva-green);text-shadow:0 0 8px rgba(68,214,44,0.3);}
+.ach-name{font-family:var(--font-cn);font-size:17px;color:var(--eva-white);letter-spacing:2px;flex:1;}
+.ach-card.achieved .ach-name{color:var(--eva-green);}
+.ach-check{
+  width:24px;height:24px;border-radius:50%;flex-shrink:0;
+  border:2px solid rgba(123,45,142,0.25);background:transparent;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.3s var(--ease-spring);font-size:12px;
+}
+.ach-card.achieved .ach-check{
+  border-color:var(--eva-green);background:rgba(68,214,44,0.1);
+  color:var(--eva-green);box-shadow:0 0 12px rgba(68,214,44,0.2);
+}
+
+.ach-detail{
+  max-height:0;overflow:hidden;transition:max-height 0.5s var(--ease-out-expo);
+}
+.ach-card.open .ach-detail{max-height:200px;}
+.ach-condition{
+  font-size:13px;font-weight:300;color:rgba(232,220,245,0.45);
+  line-height:1.8;margin-top:14px;padding-top:12px;
+  border-top:1px solid rgba(123,45,142,0.1);
+}
+.ach-vote{
+  font-family:var(--font-mono);font-size:10px;letter-spacing:1px;
+  color:var(--eva-purple-light);opacity:0.4;margin-top:8px;
+}
+
+/* awards section */
+.awards{max-width:800px;margin:0 auto;padding:20px 20px 60px;}
+.awards-header{
+  text-align:center;margin-bottom:30px;
+}
+.awards-header h2{font-family:var(--font-title);font-size:28px;color:var(--eva-green);letter-spacing:4px;}
+.awards-header p{font-family:var(--font-mono);font-size:9px;letter-spacing:4px;color:var(--eva-purple-light);opacity:0.3;margin-top:4px;}
+.award-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;}
+.award-card{
+  background:var(--glass);backdrop-filter:blur(30px);border:1px solid var(--glass-border);
+  border-radius:14px;padding:20px;text-align:center;
+  transition:all 0.4s var(--ease-out-expo);
+}
+.award-card:hover{transform:translateY(-4px);border-color:rgba(123,45,142,0.3);}
+.award-icon{font-size:28px;margin-bottom:8px;}
+.award-name{font-family:var(--font-cn);font-size:16px;color:var(--eva-green);letter-spacing:2px;margin-bottom:4px;}
+.award-desc{font-size:11px;font-weight:300;color:rgba(232,220,245,0.35);line-height:1.6;}
+
+/* hidden section */
+.hidden-section{
+  max-width:800px;margin:0 auto;padding:0 20px 40px;
+}
+.hidden-toggle{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:16px;cursor:pointer;border:1px dashed rgba(123,45,142,0.2);
+  border-radius:14px;background:rgba(123,45,142,0.03);
+  transition:all 0.4s;margin-bottom:20px;
+}
+.hidden-toggle:hover{border-color:var(--eva-purple);background:rgba(123,45,142,0.06);}
+.hidden-toggle span{font-family:var(--font-tech);font-size:11px;font-weight:700;letter-spacing:3px;color:var(--eva-purple-light);opacity:0.4;}
+.hidden-content{display:none;}.hidden-content.revealed{display:block;}
+
+.footer{text-align:center;padding:40px 20px 80px;
+  font-family:var(--font-mono);font-size:9px;letter-spacing:4px;color:var(--eva-purple-light);opacity:0.15;}
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+<div class="stripe t"></div>
+<div class="stripe b"></div>
+
+<nav class="nav">
+  <a href="index.html">公约</a>
+  <a href="extras.html">惩罚</a>
+  <a href="map.html">地图</a>
+  <div class="div"></div>
+  <a href="timeline.html">行程</a>
+  <a href="achievements.html" class="active">成就</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-label">NERV — ACHIEVEMENT TRACKER</div>
+  <h1>成就<em>追踪</em>面板</h1>
+  <div class="hero-sub">UNLOCKED DURING OPERATION</div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><div class="stat-val" id="statUnlocked">0</div><div class="stat-label">UNLOCKED</div></div>
+  <div class="stat"><div class="stat-val" id="statTotal">0</div><div class="stat-label">TOTAL</div></div>
+  <div class="stat"><div class="stat-val" id="statLegend">0</div><div class="stat-label">LEGENDARY</div></div>
+</div>
+
+<div class="cat-tabs">
+  <div class="cat-tab active" data-cat="food">美食</div>
+  <div class="cat-tab" data-cat="checkin">打卡</div>
+  <div class="cat-tab" data-cat="social">社交</div>
+  <div class="cat-tab" data-cat="awards">终极大奖</div>
+</div>
+
+<div class="ach-section" id="achSection">
+
+<!-- 美食成就 -->
+<div class="ach-cat" data-cat="food">
+<div class="ach-cat-header">
+  <span class="ach-cat-icon">🍜</span>
+  <span class="ach-cat-title">美食成就</span>
+  <span class="ach-cat-count" id="countFood">0/7</span>
+</div>
+<div class="ach-grid" id="gridFood"></div>
+</div>
+
+<!-- 打卡成就 -->
+<div class="ach-cat" data-cat="checkin">
+<div class="ach-cat-header">
+  <span class="ach-cat-icon">📸</span>
+  <span class="ach-cat-title">打卡成就</span>
+  <span class="ach-cat-count" id="countCheckin">0/7</span>
+</div>
+<div class="ach-grid" id="gridCheckin"></div>
+</div>
+
+<!-- 社交成就 -->
+<div class="ach-cat" data-cat="social">
+<div class="ach-cat-header">
+  <span class="ach-cat-icon">🎭</span>
+  <span class="ach-cat-title">社交成就</span>
+  <span class="ach-cat-count" id="countSocial">0/7</span>
+</div>
+<div class="ach-grid" id="gridSocial"></div>
+</div>
+
+<!-- 终极大奖 -->
+<div class="ach-cat" data-cat="awards">
+<div class="awards">
+<div class="awards-header">
+  <h2>终极大奖</h2>
+  <p>FINAL NIGHT · LAST VOTE</p>
+</div>
+<div class="award-grid">
+  <div class="award-card"><div class="award-icon">🥇</div><div class="award-name">欢乐王</div><div class="award-desc">三天下来给大家带来最多快乐的人</div></div>
+  <div class="award-card"><div class="award-icon">🥈</div><div class="award-name">最佳旅伴</div><div class="award-desc">旅途中最体贴、最让人舒服的人</div></div>
+  <div class="award-card"><div class="award-icon">💀</div><div class="award-name">惩罚王</div><div class="award-desc">三天被罚次数最多的人</div></div>
+  <div class="award-card"><div class="award-icon">🎭</div><div class="award-name">戏精奖</div><div class="award-desc">表演/模仿最出彩的人</div></div>
+  <div class="award-card"><div class="award-icon">📸</div><div class="award-name">首席摄影</div><div class="award-desc">拍照技术公认最好的人</div></div>
+  <div class="award-card"><div class="award-icon">🍧</div><div class="award-name">冰粉大户</div><div class="award-desc">三天花冰粉最多的人</div></div>
+</div>
+</div>
+
+<!-- 隐藏成就 -->
+<div class="hidden-section">
+  <div class="hidden-toggle" id="hiddenToggle">
+    <span>▓▓▓ CLASSIFIED · 隐藏成就 · 最后一晚揭晓 ▓▓▓</span>
+  </div>
+  <div class="hidden-content" id="hiddenContent">
+    <div class="ach-grid" id="gridHidden"></div>
+  </div>
+</div>
+</div>
+
+</div>
+
+<div class="footer">ACHIEVEMENT DATA STORED LOCALLY · NERV CHONGQING DIVISION</div>
+
+<script>
+const ACHS={
+  food:[
+    {id:'lw',name:'辣王登基',stars:2,cond:'吃完一整碗正宗辣小面（不加汤不加醋），微辣不算',vote:'目击者 ≥ 3人举手即通过'},
+    {id:'nd',name:'脑洞大开',stars:1,cond:'尝试烤脑花（吃一口就算）',vote:'现场有人拍照为证'},
+    {id:'bp',name:'冰粉战神',stars:2,cond:'一天之内喝3碗冰粉（不同店的算）',vote:'自行举证，群里有转账/照片记录'},
+    {id:'jg',name:'九宫格勇士',stars:3,cond:'吃火锅时全程纯红锅不碰清汤',vote:'同桌全员投票确认'},
+    {id:'ms',name:'美食猎人',stars:2,cond:'找到一家大众点评上没有的苍蝇馆子并带队去吃',vote:'全队投票认可好吃'},
+    {id:'gf',name:'干饭之王',stars:1,cond:'任意一餐吃得最多的人',vote:'同桌投票'},
+    {id:'cq',name:'重庆胃',stars:3,cond:'三天内尝试超过10种不同重庆小吃',vote:'自行记录，大家投票认定'},
+  ],
+  checkin:[
+    {id:'zs',name:'姿势固定器',stars:1,cond:'在3个不同地点跟同一个pose拍照',vote:'发群里由大家鉴定是否一致'},
+    {id:'sj',name:'社交达人',stars:2,cond:'和重庆本地人合影一张',vote:'需对方同意，照片为证'},
+    {id:'lc',name:'路痴克星',stars:3,cond:'在重庆迷路后自己走回来（不打车不叫人，限时30分钟）',vote:'群聊记录+定位为证'},
+    {id:'sc',name:'山城骑士',stars:2,cond:'坐一次摩托车（如果碰到）',vote:'现场目击'},
+    {id:'dx',name:'地下回响',stars:1,cond:'在816洞厅里录一段回声视频',vote:'视频发群'},
+    {id:'lt',name:'楼梯圣体',stars:2,cond:'一天内爬重庆阶梯超过累计50层',vote:'手机计步器截图为证'},
+    {id:'yj',name:'夜景之王',stars:3,cond:'拍出一张被全队投票选为"最佳重庆夜景"的照片',vote:'全员投票，票数最高者获得'},
+  ],
+  social:[
+    {id:'rj',name:'人间摄影机',stars:2,cond:'全程帮别人拍照超过20张且对方满意',vote:'被拍者点头认证 ≥ 3人'},
+    {id:'pw',name:'破壁者',stars:1,cond:'给一个平时不太聊天的队友买一杯饮料',vote:'当事双方确认'},
+    {id:'qf',name:'气氛组长',stars:2,cond:'主动组织一次小游戏（车上/民宿/等位时）',vote:'参与人数 ≥ 5'},
+    {id:'jd',name:'决断之王',stars:2,cond:'连续三顿饭第一个说"我来点菜"',vote:'同行者确认'},
+    {id:'gs',name:'故事大王',stars:3,cond:'在江边喝酒时讲一个让超过半数人笑出声的故事',vote:'现场计票'},
+    {id:'nm',name:'全队奶妈',stars:2,cond:'三天内主动照顾他人（递水/拿东西/等人）被提名最多',vote:'全员投票'},
+    {id:'lj',name:'冷场终结者',stars:3,cond:'在尴尬或冷场时成功救场 ≥ 3次',vote:'全员回忆投票'},
+  ],
+  hidden:[
+    {id:'eva',name:'EVA适格者',stars:3,cond:'全程最贴合自己旅行代号角色性格的人',vote:'全员投票'},
+    {id:'hc',name:'人类补完',stars:3,cond:'本次旅行中让大家感受到"原来你是这样的人"的意外反差',vote:'全员投票'},
+    {id:'st',name:'使徒来袭',stars:2,cond:'旅途中遇到的最大意外/突发事件的当事人',vote:'大家回忆提名'},
+    {id:'at',name:'AT FIELD 全开',stars:1,cond:'拒绝次数最多的人（善意的调侃）',vote:'全员投票'},
+    {id:'3c',name:'第三次冲击',stars:3,cond:'做了一件让全队印象最深刻的事',vote:'全员投票，票数最高者获得'},
+    {id:'di',name:'碇指令',stars:2,cond:'全程最能做决定、带领大家走的人',vote:'全员投票'},
+    {id:'bz',name:'初号机暴走',stars:2,cond:'情绪最外放/最戏剧化的人（褒义）',vote:'全员投票'},
+    {id:'lc2',name:'LCL之海',stars:1,cond:'最容易被感动/眼眶湿润的人',vote:'全员投票'},
+  ]
+};
+
+let saved=JSON.parse(localStorage.getItem('ach_state')||'{}');
+function save(){localStorage.setItem('ach_state',JSON.stringify(saved));}
+
+function renderCards(cat,gridId){
+  const grid=document.getElementById(gridId);
+  ACHS[cat].forEach(a=>{
+    const done=!!saved[a.id];
+    const card=document.createElement('div');
+    card.className='ach-card'+(done?' achieved':'');
+    card.innerHTML=`
+      <div class="ach-top">
+        <span class="ach-stars s${a.stars}">${'★'.repeat(a.stars)}</span>
+        <span class="ach-name">「${a.name}」</span>
+        <div class="ach-check">${done?'✓':''}</div>
+      </div>
+      <div class="ach-detail">
+        <div class="ach-condition">${a.cond}</div>
+        <div class="ach-vote">投票：${a.vote}</div>
+      </div>`;
+    card.addEventListener('click',e=>{
+      if(e.target.closest('.ach-check')){
+        saved[a.id]=!saved[a.id];save();
+        card.classList.toggle('achieved',saved[a.id]);
+        card.querySelector('.ach-check').textContent=saved[a.id]?'✓':'';
+        updateStats();
+        return;
+      }
+      card.classList.toggle('open');
+    });
+    grid.appendChild(card);
+  });
+}
+
+renderCards('food','gridFood');
+renderCards('checkin','gridCheckin');
+renderCards('social','gridSocial');
+renderCards('hidden','gridHidden');
+
+function updateStats(){
+  const all=[...ACHS.food,...ACHS.checkin,...ACHS.social,...ACHS.hidden];
+  const unlocked=all.filter(a=>saved[a.id]).length;
+  const legendary=all.filter(a=>a.stars===3&&saved[a.id]).length;
+  document.getElementById('statUnlocked').textContent=unlocked;
+  document.getElementById('statTotal').textContent=all.length;
+  document.getElementById('statLegend').textContent=legendary;
+  ['food','checkin','social'].forEach(cat=>{
+    const n=ACHS[cat].filter(a=>saved[a.id]).length;
+    const el=document.getElementById('count'+cat.charAt(0).toUpperCase()+cat.slice(1));
+    if(el)el.textContent=`${n}/${ACHS[cat].length}`;
+  });
+}
+updateStats();
+
+/* category tabs */
+function showCat(cat){
+  document.querySelectorAll('.ach-cat,.awards,.hidden-section').forEach(el=>el.style.display='none');
+  document.querySelectorAll('.cat-tab').forEach(t=>t.classList.remove('active'));
+  const target=document.querySelector(`.ach-cat[data-cat="${cat}"]`);
+  if(target){target.style.display='block';target.classList.add('visible');}
+  if(cat==='awards'){
+    document.querySelector('.awards').style.display='block';
+    document.querySelector('.hidden-section').style.display='block';
+  }
+  document.querySelector(`.cat-tab[data-cat="${cat}"]`).classList.add('active');
+}
+document.querySelectorAll('.cat-tab').forEach(t=>{
+  t.addEventListener('click',()=>showCat(t.dataset.cat));
+});
+showCat('food');
+
+/* hidden toggle */
+document.getElementById('hiddenToggle').addEventListener('click',function(){
+  document.getElementById('hiddenContent').classList.toggle('revealed');
+  this.querySelector('span').textContent=
+    document.getElementById('hiddenContent').classList.contains('revealed')
+      ?'▼ DECLASSIFIED · 隐藏成就已揭晓 ▼'
+      :'▓▓▓ CLASSIFIED · 隐藏成就 · 最后一晚揭晓 ▓▓▓';
+});
+</script>
+</body>
+</html>
