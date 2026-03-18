@@ -406,27 +406,175 @@
     opacity: 0.5;
   }
 
-  /* ═══════ COUNTDOWN ═══════ */
-  .countdown-strip {
-    position: fixed; bottom: 0; left: 0;
-    width: 100%; z-index: 50;
-    background: rgba(5,2,10,0.8);
-    backdrop-filter: blur(8px);
-    border-top: 1px solid rgba(240,232,248,0.04);
-    display: flex; align-items: center;
-    justify-content: center; gap: 8px;
-    padding: 8px 16px;
-    font-family: var(--font-mono);
-    font-size: 11px; color: var(--dim);
-    letter-spacing: 2px;
+  /* ═══════ DEPARTURE SECTION ═══════ */
+  .departure-section {
+    padding: 60px 8vw 80px;
+    position: relative;
+    display: flex; flex-direction: column; align-items: center;
   }
-  .countdown-strip .val {
-    color: var(--green);
-    font-size: 14px; font-weight: 700;
-    text-shadow: 0 0 6px rgba(68,214,44,0.4);
-    min-width: 22px; text-align: center;
+  .dep-label {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 6px;
+    color: var(--purple); opacity: 0.4; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px;
   }
-  .countdown-strip .sep { opacity: 0.2; }
+  .dep-label::before, .dep-label::after {
+    content: ''; width: 30px; height: 1px; background: var(--purple); opacity: 0.3;
+  }
+  .dep-status {
+    font-family: var(--font-tech); font-size: 13px; font-weight: 700;
+    letter-spacing: 5px; margin-bottom: 24px;
+  }
+  .dep-status.standby { color: var(--dim); }
+  .dep-status.live { color: var(--green); animation: depBlink 1.5s ease-in-out infinite; }
+  .dep-status.done { color: var(--purple); opacity: 0.4; }
+  @keyframes depBlink { 0%,100%{opacity:1;}50%{opacity:0.4;} }
+
+  .cd-row {
+    display: flex; gap: 12px; margin-bottom: 32px;
+  }
+  .cd-block {
+    text-align: center; position: relative;
+  }
+  .cd-val {
+    font-family: var(--font-mono); font-size: clamp(40px, 10vw, 72px); font-weight: 700;
+    color: var(--green); line-height: 1;
+    text-shadow: 0 0 30px rgba(68,214,44,0.15);
+    min-width: 2ch;
+  }
+  .cd-unit {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 3px;
+    color: var(--purple); opacity: 0.35; margin-top: 4px;
+  }
+  .cd-colon {
+    font-family: var(--font-mono); font-size: clamp(30px, 8vw, 56px);
+    color: var(--purple); opacity: 0.15; line-height: 1; padding-top: 4px;
+    animation: colonBlink 1s ease-in-out infinite;
+  }
+  @keyframes colonBlink { 0%,100%{opacity:0.15;}50%{opacity:0.4;} }
+
+  /* flight cards */
+  .flight-cards {
+    display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;
+    max-width: 800px; width: 100%;
+  }
+  .flight-card {
+    flex: 1; min-width: 280px; max-width: 380px;
+    background: rgba(10,4,22,0.6);
+    backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(123,45,142,0.15);
+    border-radius: 16px; padding: 24px 28px;
+    position: relative; overflow: hidden;
+    transition: all 0.4s ease;
+  }
+  .flight-card:hover {
+    border-color: rgba(68,214,44,0.2);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(5,2,10,0.4);
+  }
+  .flight-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--purple), var(--green), var(--purple));
+    opacity: 0.4;
+  }
+  .fc-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .fc-tag {
+    font-family: var(--font-mono); font-size: 8px; letter-spacing: 3px;
+    color: var(--purple); opacity: 0.4; text-transform: uppercase;
+  }
+  .fc-badge {
+    font-family: var(--font-tech); font-size: 9px; font-weight: 700; letter-spacing: 2px;
+    padding: 3px 10px; border-radius: 20px;
+    border: 1px solid rgba(68,214,44,0.2); color: var(--green); opacity: 0.6;
+  }
+  .fc-route {
+    display: flex; align-items: center; gap: 16px; margin-bottom: 18px;
+  }
+  .fc-city {
+    text-align: center;
+  }
+  .fc-code {
+    font-family: var(--font-tech); font-size: 28px; font-weight: 700;
+    color: var(--white); letter-spacing: 2px; line-height: 1;
+  }
+  .fc-name {
+    font-family: 'Noto Sans SC', sans-serif; font-size: 11px; font-weight: 300;
+    color: var(--dim); margin-top: 2px;
+  }
+  .fc-arrow {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    position: relative; min-width: 60px;
+  }
+  .fc-arrow-line {
+    width: 100%; height: 1px; background: var(--purple); opacity: 0.2;
+  }
+  .fc-arrow svg {
+    position: absolute; width: 20px; height: 20px; color: var(--green); opacity: 0.5;
+  }
+  .fc-details {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
+  .fc-detail {
+    padding: 10px 12px; border-radius: 10px;
+    background: rgba(123,45,142,0.04);
+    border: 1px solid rgba(123,45,142,0.06);
+  }
+  .fc-detail-label {
+    font-family: var(--font-mono); font-size: 8px; letter-spacing: 2px;
+    color: var(--purple); opacity: 0.35; margin-bottom: 3px;
+  }
+  .fc-detail-val {
+    font-family: var(--font-mono); font-size: 14px;
+    color: var(--white); letter-spacing: 1px;
+  }
+  .fc-detail-val em { font-style: normal; color: var(--green); }
+
+  /* info card */
+  .info-card {
+    flex: 1; min-width: 280px; max-width: 380px;
+    background: rgba(10,4,22,0.6);
+    backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(123,45,142,0.15);
+    border-radius: 16px; padding: 24px 28px;
+    position: relative; overflow: hidden;
+    transition: all 0.4s ease;
+  }
+  .info-card:hover {
+    border-color: rgba(123,45,142,0.3);
+    transform: translateY(-4px);
+  }
+  .info-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: var(--purple); opacity: 0.3;
+  }
+  .ic-title {
+    font-family: var(--font-cn); font-size: 18px; letter-spacing: 2px;
+    color: var(--white); margin-bottom: 16px;
+  }
+  .ic-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid rgba(240,232,248,0.03);
+    font-size: 13px; font-weight: 300; color: rgba(240,232,248,0.4);
+    line-height: 1.7;
+  }
+  .ic-item:last-child { border-bottom: none; }
+  .ic-bullet {
+    font-family: var(--font-mono); font-size: 10px; color: var(--green);
+    opacity: 0.5; flex-shrink: 0; margin-top: 4px;
+  }
+  .ic-item strong {
+    font-weight: 700; color: var(--green); opacity: 0.7;
+  }
+
+  @media (max-width: 768px) {
+    .departure-section { padding: 40px 5vw 60px; }
+    .flight-cards { flex-direction: column; align-items: center; }
+    .flight-card, .info-card { min-width: auto; max-width: 100%; width: 100%; }
+    .fc-code { font-size: 22px; }
+    .cd-row { gap: 8px; }
+  }
 
   /* ─── UNIFIED SITE NAV ─── */
   .site-nav{
@@ -458,7 +606,6 @@
       padding:6px 2px;border-radius:10px;flex:1;}
     .sn-tab.active{background:rgba(68,214,44,0.1);color:var(--green);box-shadow:none;}
     .sn-icon{display:block;}
-    .countdown-strip{bottom:56px;}
   }
 
   /* ═══════ RESPONSIVE ═══════ */
@@ -527,6 +674,78 @@
     </div>
   </div>
   <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- ═══════ DEPARTURE COUNTDOWN + FLIGHT CARDS ═══════ -->
+<section class="departure-section">
+  <div class="dep-label">NERV — DEPARTURE COUNTDOWN</div>
+  <div class="dep-status standby" id="depStatus">STANDBY — AWAITING DEPARTURE</div>
+
+  <div class="cd-row" id="cdRow">
+    <div class="cd-block"><div class="cd-val" id="cdD2">--</div><div class="cd-unit">DAYS</div></div>
+    <div class="cd-colon">:</div>
+    <div class="cd-block"><div class="cd-val" id="cdH2">--</div><div class="cd-unit">HOURS</div></div>
+    <div class="cd-colon">:</div>
+    <div class="cd-block"><div class="cd-val" id="cdM2">--</div><div class="cd-unit">MINS</div></div>
+    <div class="cd-colon">:</div>
+    <div class="cd-block"><div class="cd-val" id="cdS2">--</div><div class="cd-unit">SECS</div></div>
+  </div>
+
+  <div class="flight-cards">
+    <!-- Flight Card -->
+    <div class="flight-card">
+      <div class="fc-header">
+        <span class="fc-tag">FLIGHT INFO</span>
+        <span class="fc-badge">04.03 FRI</span>
+      </div>
+      <div class="fc-route">
+        <div class="fc-city">
+          <div class="fc-code">CAN</div>
+          <div class="fc-name">广州白云</div>
+        </div>
+        <div class="fc-arrow">
+          <div class="fc-arrow-line"></div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+        <div class="fc-city">
+          <div class="fc-code">CKG</div>
+          <div class="fc-name">重庆江北</div>
+        </div>
+      </div>
+      <div class="fc-details">
+        <div class="fc-detail">
+          <div class="fc-detail-label">DEPART</div>
+          <div class="fc-detail-val"><em>18:00</em> — 19:00</div>
+        </div>
+        <div class="fc-detail">
+          <div class="fc-detail-label">ARRIVE</div>
+          <div class="fc-detail-val"><em>21:00</em> — 22:00</div>
+        </div>
+        <div class="fc-detail">
+          <div class="fc-detail-label">DURATION</div>
+          <div class="fc-detail-val">~2.5H</div>
+        </div>
+        <div class="fc-detail">
+          <div class="fc-detail-label">PASSENGERS</div>
+          <div class="fc-detail-val"><em>11</em> PAX</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Arrival Info Card -->
+    <div class="info-card">
+      <div class="fc-header">
+        <span class="fc-tag">ARRIVAL PLAN</span>
+        <span class="fc-badge">NIGHT 0</span>
+      </div>
+      <div class="ic-title">落地后安排</div>
+      <div class="ic-item"><span class="ic-bullet">▸</span>江北机场 T3 → 南滨公园民宿</div>
+      <div class="ic-item"><span class="ic-bullet">▸</span>打车约 <strong>45 min</strong> · 约 60元/车 · <strong>2 辆</strong></div>
+      <div class="ic-item"><span class="ic-bullet">▸</span>入住 → 南滨路夜宵</div>
+      <div class="ic-item"><span class="ic-bullet">▸</span>民宿破冰聚会 · <strong>到达仪式</strong></div>
+      <div class="ic-item"><span class="ic-bullet">▸</span>早休息，第二天 <strong>08:30</strong> 出发涪陵</div>
+    </div>
+  </div>
 </section>
 
 <!-- ═══════ COVENANT ═══════ -->
@@ -650,17 +869,6 @@
   <div class="footer-credit">NERV TRAVEL DIVISION // CHONGQING 2026</div>
 </footer>
 
-<!-- ═══════ COUNTDOWN ═══════ -->
-<div class="countdown-strip">
-  <span>DEPARTURE</span>
-  <span class="val" id="cd-d">--</span><span>D</span>
-  <span class="sep">:</span>
-  <span class="val" id="cd-h">--</span><span>H</span>
-  <span class="sep">:</span>
-  <span class="val" id="cd-m">--</span><span>M</span>
-  <span class="sep">:</span>
-  <span class="val" id="cd-s">--</span><span>S</span>
-</div>
 
 <script>
 /* ═══ RAIN ═══ */
@@ -695,16 +903,32 @@
 })();
 
 /* ═══ COUNTDOWN ═══ */
-function cd() {
-  const t = new Date('2026-04-03T18:00:00+08:00') - new Date();
-  if (t < 0) { document.querySelector('.countdown-strip').innerHTML = '<span style="color:var(--green);letter-spacing:6px;">DEPARTURE NOW</span>'; return; }
-  const d = Math.floor(t/864e5), h = Math.floor(t%864e5/36e5), m = Math.floor(t%36e5/6e4), s = Math.floor(t%6e4/1e3);
-  document.getElementById('cd-d').textContent = String(d).padStart(2,'0');
-  document.getElementById('cd-h').textContent = String(h).padStart(2,'0');
-  document.getElementById('cd-m').textContent = String(m).padStart(2,'0');
-  document.getElementById('cd-s').textContent = String(s).padStart(2,'0');
+const DEPART = new Date('2026-04-03T18:00:00+08:00').getTime();
+const END = new Date('2026-04-06T15:00:00+08:00').getTime();
+function updateCountdown() {
+  const now = Date.now(), diff = DEPART - now;
+  const st = document.getElementById('depStatus');
+  const row = document.getElementById('cdRow');
+  if (diff > 0) {
+    const d=Math.floor(diff/864e5), h=Math.floor(diff%864e5/36e5),
+          m=Math.floor(diff%36e5/6e4), s=Math.floor(diff%6e4/1e3);
+    document.getElementById('cdD2').textContent = String(d).padStart(2,'0');
+    document.getElementById('cdH2').textContent = String(h).padStart(2,'0');
+    document.getElementById('cdM2').textContent = String(m).padStart(2,'0');
+    document.getElementById('cdS2').textContent = String(s).padStart(2,'0');
+    st.textContent = 'STANDBY — AWAITING DEPARTURE';
+    st.className = 'dep-status standby';
+  } else if (now < END) {
+    row.style.display = 'none';
+    st.textContent = '▶ OPERATION IN PROGRESS';
+    st.className = 'dep-status live';
+  } else {
+    row.style.display = 'none';
+    st.textContent = 'OPERATION COMPLETE — MISSION SUCCESS';
+    st.className = 'dep-status done';
+  }
 }
-cd(); setInterval(cd, 1000);
+updateCountdown(); setInterval(updateCountdown, 1000);
 
 /* ═══ SIGN ═══ */
 (function(){
