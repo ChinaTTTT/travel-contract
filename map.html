@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>重庆地图 // CHONGQING MAP</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+QingKe+HuangYou&family=Chakra+Petch:wght@400;700&family=Share+Tech+Mono&family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #05020a;
+    --white: #f0e8f8;
+    --green: #44D62C;
+    --purple: #7B2D8E;
+    --pink: #ff2d95;
+    --orange: #FF6A00;
+    --blue: #00e5ff;
+    --gold: #FFD700;
+    --dim: rgba(240,232,248,0.4);
+    --font-cn: 'ZCOOL QingKe HuangYou', sans-serif;
+    --font-tech: 'Chakra Petch', sans-serif;
+    --font-mono: 'Share Tech Mono', monospace;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Noto Sans SC', sans-serif;
+    height: 100vh; overflow: hidden;
+  }
+
+  #map {
+    position: absolute; inset: 0; z-index: 1;
+  }
+
+  /* dark map tiles */
+  .leaflet-tile-pane { filter: saturate(0.3) brightness(0.45) contrast(1.2) hue-rotate(200deg); }
+  .leaflet-control-zoom a {
+    background: rgba(5,2,10,0.85) !important;
+    color: var(--green) !important;
+    border-color: rgba(68,214,44,0.2) !important;
+  }
+  .leaflet-control-attribution {
+    background: rgba(5,2,10,0.6) !important;
+    color: rgba(240,232,248,0.2) !important;
+    font-size: 9px !important;
+  }
+  .leaflet-control-attribution a { color: rgba(240,232,248,0.3) !important; }
+
+  .leaflet-popup-content-wrapper {
+    background: rgba(10,4,22,0.92) !important;
+    color: var(--white) !important;
+    border-radius: 4px !important;
+    border: 1px solid rgba(123,45,142,0.3);
+    box-shadow: 0 0 30px rgba(123,45,142,0.2) !important;
+  }
+  .leaflet-popup-tip { background: rgba(10,4,22,0.92) !important; }
+  .leaflet-popup-close-button { color: var(--dim) !important; }
+  .leaflet-popup-content { font-family: 'Noto Sans SC', sans-serif; font-size: 13px; line-height: 1.6; }
+
+  .popup-title {
+    font-family: var(--font-cn);
+    font-size: 16px; margin-bottom: 4px;
+  }
+  .popup-tag {
+    font-family: var(--font-mono);
+    font-size: 9px; letter-spacing: 2px;
+    padding: 2px 8px; display: inline-block;
+    margin-bottom: 6px; border-radius: 2px;
+  }
+  .popup-desc {
+    font-size: 12px; color: rgba(240,232,248,0.5);
+    line-height: 1.7;
+  }
+
+  /* nav overlay */
+  .map-nav {
+    position: fixed; top: 16px; left: 16px; z-index: 1000;
+    display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .map-nav a, .map-nav button {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 2px; color: var(--dim);
+    text-decoration: none; padding: 7px 14px;
+    border: 1px solid rgba(240,232,248,0.08);
+    background: rgba(5,2,10,0.8);
+    backdrop-filter: blur(8px);
+    transition: all 0.3s; cursor: pointer;
+  }
+  .map-nav a:hover, .map-nav button:hover {
+    color: var(--green); border-color: rgba(68,214,44,0.3);
+  }
+  .map-nav button.active {
+    color: var(--green); border-color: var(--green);
+    background: rgba(68,214,44,0.06);
+  }
+
+  .map-title {
+    position: fixed; bottom: 16px; left: 16px; z-index: 1000;
+    pointer-events: none;
+  }
+  .map-title h1 {
+    font-family: var(--font-cn);
+    font-size: 28px; color: var(--white);
+    text-shadow: 0 0 40px rgba(5,2,10,0.8);
+    opacity: 0.6;
+  }
+  .map-title p {
+    font-family: var(--font-mono);
+    font-size: 10px; letter-spacing: 4px;
+    color: var(--dim);
+  }
+
+  .legend {
+    position: fixed; bottom: 16px; right: 16px; z-index: 1000;
+    background: rgba(5,2,10,0.8);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(240,232,248,0.06);
+    padding: 12px 16px;
+    font-family: var(--font-mono);
+    font-size: 10px; letter-spacing: 1px;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 4px; color: var(--dim);
+  }
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div class="map-nav">
+  <a href="index.html">← 公约</a>
+  <a href="extras.html">惩罚</a>
+  <button class="active" onclick="flyToAll()" title="查看所有">ALL</button>
+  <button onclick="flyToCity()" title="市区">城区</button>
+  <button onclick="flyToNanshan()" title="南山">南山</button>
+  <button onclick="flyToFuling()" title="涪陵">涪陵</button>
+</div>
+
+<div class="map-title">
+  <h1>重庆出行地图</h1>
+  <p>CHONGQING OPS MAP // 04.03-04.06</p>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#ff2d95;"></div> 住宿</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#44D62C;"></div> 南岸区</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#00e5ff;"></div> 渝中区</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#FF6A00;"></div> 九龙坡/沙坪坝</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#FFD700;"></div> 涪陵远郊</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ff4444;"></div> 美食推荐</div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const map = L.map('map', {
+  center: [29.558, 106.570],
+  zoom: 13,
+  zoomControl: true,
+  attributionControl: true
+});
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OSM &amp; CARTO',
+  maxZoom: 19
+}).addTo(map);
+
+function makeIcon(color, size) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="
+      width:${size}px;height:${size}px;border-radius:50%;
+      background:${color};
+      box-shadow:0 0 ${size}px ${color}, 0 0 ${size*2}px ${color}40;
+      border:2px solid rgba(255,255,255,0.3);
+    "></div>`,
+    iconSize: [size, size],
+    iconAnchor: [size/2, size/2]
+  });
+}
+
+function popup(title, tag, tagColor, desc) {
+  return `<div class="popup-title">${title}</div>
+    <span class="popup-tag" style="color:${tagColor};border:1px solid ${tagColor}30;background:${tagColor}10;">${tag}</span>
+    <div class="popup-desc">${desc}</div>`;
+}
+
+const spots = [
+  // 住宿
+  { lat:29.5577, lng:106.5850, name:'南滨公园民宿', tag:'HOME BASE', color:'#ff2d95', desc:'住宿所在地 · 南滨路江边夜景最佳观赏点', size:16 },
+
+  // 南岸区
+  { lat:29.5600, lng:106.5840, name:'龙门浩老街', tag:'南岸区', color:'#44D62C', desc:'Day3 推荐 · 可俯瞰东水门大桥' },
+  { lat:29.5625, lng:106.5950, name:'弹子石老街', tag:'南岸区', color:'#44D62C', desc:'南滨路中段 · 近住宿' },
+  { lat:29.5555, lng:106.5795, name:'长江索道（南站）', tag:'南岸区', color:'#44D62C', desc:'Day2 出发点 · 过江到渝中 · 提前购票' },
+  { lat:29.5270, lng:106.5810, name:'南山风景区', tag:'南岸区', color:'#44D62C', desc:'南山上 · 可看渝中全景' },
+  { lat:29.5320, lng:106.5697, name:'南山一棵树观景台', tag:'南岸区', color:'#44D62C', desc:'看渝中夜景最佳位置' },
+  { lat:29.5240, lng:106.5620, name:'老君洞道观', tag:'南岸区', color:'#44D62C', desc:'悬崖上的道观 · 方案C Day1' },
+  { lat:29.5190, lng:106.5780, name:'南山泉水鸡一条街', tag:'南岸区 · 美食', color:'#44D62C', desc:'午饭强烈推荐 · 一鸡三吃 · 10人围桌 · 人均60-80' },
+
+  // 渝中区
+  { lat:29.5590, lng:106.5775, name:'解放碑步行街', tag:'渝中区', color:'#00e5ff', desc:'重庆地标 · Day2 必到' },
+  { lat:29.5600, lng:106.5755, name:'八一好吃街', tag:'渝中区 · 美食', color:'#00e5ff', desc:'解放碑旁 · 小吃一条街' },
+  { lat:29.5635, lng:106.5735, name:'洪崖洞', tag:'渝中区', color:'#00e5ff', desc:'重庆名片 · Day2 17:30汇合看亮灯 · 清明人多' },
+  { lat:29.5650, lng:106.5710, name:'戴家巷崖壁步道', tag:'渝中区', color:'#00e5ff', desc:'洪崖洞附近 · 崖壁上的步道' },
+  { lat:29.5520, lng:106.5690, name:'山城第三步道', tag:'渝中区', color:'#00e5ff', desc:'最有味道的城市步道 · A组暴走线' },
+  { lat:29.5555, lng:106.5420, name:'李子坝轻轨站', tag:'渝中区', color:'#00e5ff', desc:'轻轨穿楼打卡点 · A组暴走线' },
+  { lat:29.5530, lng:106.5350, name:'鹅岭贰厂文创园', tag:'渝中区', color:'#00e5ff', desc:'文创+天台全景 · A组暴走线' },
+  { lat:29.5510, lng:106.5580, name:'皇冠大扶梯', tag:'渝中区', color:'#00e5ff', desc:'亚洲最长坡地扶梯' },
+  { lat:29.5650, lng:106.5835, name:'来福士广场', tag:'渝中区', color:'#00e5ff', desc:'朝天门 · 购物+潮玩 · B组休闲线' },
+  { lat:29.5545, lng:106.5730, name:'十八梯', tag:'渝中区', color:'#00e5ff', desc:'传统风貌区' },
+  { lat:29.5580, lng:106.5620, name:'中山四路', tag:'渝中区', color:'#00e5ff', desc:'历史文化街区 · 重庆最美街道' },
+  { lat:29.5630, lng:106.5580, name:'人民大礼堂', tag:'渝中区', color:'#00e5ff', desc:'标志性建筑' },
+  { lat:29.5640, lng:106.5560, name:'三峡博物馆', tag:'渝中区', color:'#00e5ff', desc:'大礼堂对面 · 免费 · B组休闲线' },
+
+  // 九龙坡
+  { lat:29.5020, lng:106.5010, name:'黄桷坪涂鸦街', tag:'九龙坡区', color:'#FF6A00', desc:'整条街巨幅涂鸦 · 方案C Day1' },
+  { lat:29.5010, lng:106.4990, name:'四川美术学院（老校区）', tag:'九龙坡区', color:'#FF6A00', desc:'涂鸦街旁' },
+  { lat:29.5030, lng:106.5060, name:'交通茶馆', tag:'九龙坡区', color:'#FF6A00', desc:'重庆最老茶馆 · 盖碗茶' },
+
+  // 沙坪坝
+  { lat:29.5930, lng:106.4480, name:'磁器口古镇', tag:'沙坪坝区', color:'#FF6A00', desc:'古镇老街 · 陈麻花 · 清明人多' },
+
+  // 江北
+  { lat:29.5750, lng:106.5600, name:'观音桥九街', tag:'江北区', color:'#FF6A00', desc:'夜生活聚集地 · 酒吧街' },
+
+  // 涪陵远郊
+  { lat:29.7072, lng:107.3912, name:'白鹤梁水下博物馆', tag:'涪陵 · 远郊', color:'#FFD700', desc:'世界唯一水下博物馆 · 需提前预约 · 门票¥50', size:14 },
+  { lat:29.6200, lng:107.2700, name:'816地下核工程', tag:'涪陵 · 远郊', color:'#FFD700', desc:'解密冷战地下核设施 · 洞内恒温18°C带外套 · 门票¥40', size:14 },
+
+  // 美食
+  { lat:29.5565, lng:106.5900, name:'周师兄火锅（南滨路店）', tag:'美食', color:'#ff4444', desc:'大刀腰片火锅 · 人均100-130 · 离住处近', size:10 },
+  { lat:29.5610, lng:106.5760, name:'珮姐老火锅', tag:'美食', color:'#ff4444', desc:'口碑老牌 · 人均100-130 · 清明需提前订位', size:10 },
+];
+
+const allMarkers = [];
+
+spots.forEach(s => {
+  const icon = makeIcon(s.color, s.size || 12);
+  const marker = L.marker([s.lat, s.lng], { icon })
+    .bindPopup(popup(s.name, s.tag, s.color, s.desc), { maxWidth: 260 })
+    .addTo(map);
+  allMarkers.push(marker);
+});
+
+// Day route lines
+L.polyline([
+  [29.5577, 106.5850], [29.5555, 106.5795], [29.5590, 106.5775],
+  [29.5600, 106.5755], [29.5635, 106.5735], [29.5650, 106.5710]
+], { color: '#00e5ff', weight: 1.5, opacity: 0.3, dashArray: '6,8' }).addTo(map);
+
+L.polyline([
+  [29.5577, 106.5850], [29.7072, 107.3912]
+], { color: '#FFD700', weight: 1, opacity: 0.2, dashArray: '8,12' }).addTo(map);
+
+function flyToAll() {
+  map.flyTo([29.56, 106.57], 12, { duration: 1 });
+  setActive(0);
+}
+function flyToCity() {
+  map.flyTo([29.558, 106.565], 14, { duration: 1 });
+  setActive(1);
+}
+function flyToNanshan() {
+  map.flyTo([29.525, 106.570], 14, { duration: 1 });
+  setActive(2);
+}
+function flyToFuling() {
+  map.flyTo([29.66, 107.33], 11, { duration: 1.5 });
+  setActive(3);
+}
+
+function setActive(idx) {
+  document.querySelectorAll('.map-nav button').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+  });
+}
+</script>
+</body>
+</html>
