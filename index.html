@@ -966,9 +966,10 @@ function updateCountdown() {
 }
 updateCountdown(); setInterval(updateCountdown, 1000);
 
-/* ═══ CLOUD SIGN ═══ */
-const BLOB='https://jsonblob.com/api/jsonBlob/019d01ec-05d3-7d93-972d-49f17cd51099';
-let _saveTimer=null, _editingSlot=null;
+/* ═══ CLOUD SIGN — ntfy.sh real-time ═══ */
+const TOPIC='https://ntfy.sh/tc-signs-2026cq-x9k4m2p7';
+const EMPTY={slot1:'',slot2:'',slot3:'',slot4:'',slot5:'',slot6:'',slot7:'',slot8:'',slot9:'',slot10:'',slot11:''};
+let _saveTimer=null, _editingSlot=null, _state={...EMPTY};
 
 (function(){
   const g=document.getElementById('signGrid');
@@ -983,25 +984,26 @@ let _saveTimer=null, _editingSlot=null;
     inp.addEventListener('focus',()=>{ _editingSlot=inp.dataset.slot; });
     inp.addEventListener('blur',()=>{
       _editingSlot=null;
-      saveSlot(inp.dataset.slot);
+      pushState();
     });
     inp.addEventListener('input',()=>{
-      const slot=inp.parentElement;
-      slot.classList.toggle('signed',inp.value.trim().length>0);
+      inp.parentElement.classList.toggle('signed',inp.value.trim().length>0);
+      _state['slot'+inp.dataset.slot]=inp.value.trim();
       updateCounter();
       clearTimeout(_saveTimer);
-      _saveTimer=setTimeout(()=>saveSlot(inp.dataset.slot),2000);
+      _saveTimer=setTimeout(pushState,1500);
     });
   });
-  loadSignatures();
-  setInterval(loadSignatures,12000);
+  pullState();
+  startSSE();
 })();
 
 function showSync(s){
   const el=document.getElementById('syncStatus');
   if(!el)return;
   const m={synced:['● SYNCED','synced'],saving:['◌ SAVING…','saving'],
-    error:['✕ OFFLINE — 本地已保存','error'],loading:['◌ LOADING…','loading']};
+    error:['✕ OFFLINE','error'],loading:['◌ LOADING…','loading'],
+    live:['● LIVE','synced']};
   const[t,c]=m[s]||['',''];
   el.textContent=t; el.className='sync-status '+c;
 }
@@ -1013,60 +1015,79 @@ function updateCounter(){
   else c.innerHTML=`AUTHENTICATED <em>${n}</em> / <em>11</em>`;
 }
 
-function loadSignatures(){
-  fetch(BLOB,{headers:{'Accept':'application/json'}})
-    .then(r=>{if(!r.ok)throw 0;return r.json();})
-    .then(data=>{
-      for(let i=1;i<=11;i++){
-        const inp=document.getElementById('slot'+i);
-        const val=data['slot'+i]||'';
-        if(String(i)===_editingSlot) continue;
-        inp.value=val;
-        inp.parentElement.classList.toggle('signed',val.length>0);
+function applyState(data){
+  _state={...EMPTY,...data};
+  for(let i=1;i<=11;i++){
+    const inp=document.getElementById('slot'+i);
+    const val=_state['slot'+i]||'';
+    if(String(i)===_editingSlot) continue;
+    inp.value=val;
+    inp.parentElement.classList.toggle('signed',val.length>0);
+  }
+  localStorage.setItem('sign_backup',JSON.stringify(_state));
+  updateCounter();
+}
+
+function pullState(){
+  showSync('loading');
+  fetch(TOPIC+'/json?poll=1&since=24h')
+    .then(r=>{if(!r.ok)throw 0;return r.text();})
+    .then(txt=>{
+      const lines=txt.trim().split('\n').filter(Boolean);
+      if(!lines.length){
+        const bk=localStorage.getItem('sign_backup');
+        if(bk) applyState(JSON.parse(bk));
+        showSync('synced');
+        return;
       }
-      localStorage.setItem('sign_backup',JSON.stringify(data));
-      updateCounter();
+      const last=JSON.parse(lines[lines.length-1]);
+      const data=JSON.parse(last.message);
+      applyState(data);
       showSync('synced');
     })
     .catch(()=>{
       const bk=localStorage.getItem('sign_backup');
-      if(bk){
-        const data=JSON.parse(bk);
-        for(let i=1;i<=11;i++){
-          const inp=document.getElementById('slot'+i);
-          if(String(i)===_editingSlot) continue;
-          inp.value=data['slot'+i]||'';
-          inp.parentElement.classList.toggle('signed',(data['slot'+i]||'').length>0);
-        }
-        updateCounter();
-      }
+      if(bk) applyState(JSON.parse(bk));
       showSync('error');
     });
 }
 
-function saveSlot(num){
+function pushState(){
+  for(let i=1;i<=11;i++){
+    _state['slot'+i]=document.getElementById('slot'+i).value.trim();
+  }
   showSync('saving');
-  fetch(BLOB,{headers:{'Accept':'application/json'}})
-    .then(r=>{if(!r.ok)throw 0;return r.json();})
-    .then(latest=>{
-      latest['slot'+num]=document.getElementById('slot'+num).value.trim();
-      return fetch(BLOB,{
-        method:'PUT',
-        headers:{'Content-Type':'application/json','Accept':'application/json'},
-        body:JSON.stringify(latest)
-      });
-    })
+  fetch(TOPIC,{method:'PUT',body:JSON.stringify(_state)})
     .then(r=>{
       if(!r.ok)throw 0;
+      localStorage.setItem('sign_backup',JSON.stringify(_state));
       showSync('synced');
-      setTimeout(loadSignatures,500);
     })
     .catch(()=>{
-      const bk=JSON.parse(localStorage.getItem('sign_backup')||'{}');
-      bk['slot'+num]=document.getElementById('slot'+num).value.trim();
-      localStorage.setItem('sign_backup',JSON.stringify(bk));
+      localStorage.setItem('sign_backup',JSON.stringify(_state));
       showSync('error');
     });
+}
+
+let _sse=null,_sseRetry=null;
+function startSSE(){
+  if(_sse){try{_sse.close();}catch(e){}}
+  clearTimeout(_sseRetry);
+  _sse=new EventSource(TOPIC+'/sse');
+  _sse.onopen=()=>showSync('live');
+  _sse.addEventListener('message',ev=>{
+    try{
+      const obj=JSON.parse(ev.data);
+      const data=JSON.parse(obj.message);
+      applyState(data);
+      showSync('live');
+    }catch(e){}
+  });
+  _sse.onerror=()=>{
+    showSync('error');
+    try{_sse.close();}catch(e){}
+    _sseRetry=setTimeout(startSSE,8000);
+  };
 }
 
 /* ═══ NAV ACTIVE ═══ */
