@@ -966,14 +966,15 @@ function updateCountdown() {
 }
 updateCountdown(); setInterval(updateCountdown, 1000);
 
-/* ═══ CLOUD SIGN — ntfy.sh real-time ═══ */
+/* ═══ CLOUD SIGN — ntfy.sh real-time v2 ═══ */
 const TOPIC='https://ntfy.sh/tc-signs-2026cq-x9k4m2p7';
-const EMPTY={slot1:'',slot2:'',slot3:'',slot4:'',slot5:'',slot6:'',slot7:'',slot8:'',slot9:'',slot10:'',slot11:''};
-let _saveTimer=null, _editingSlot=null, _state={...EMPTY};
+const SLOTS=11;
+const EMPTY={}; for(let i=1;i<=SLOTS;i++) EMPTY['slot'+i]='';
+let _saveTimer=null, _editingSlot=null, _cloud={...EMPTY}, _sseOK=false;
 
 (function(){
   const g=document.getElementById('signGrid');
-  for(let i=1;i<=11;i++){
+  for(let i=1;i<=SLOTS;i++){
     const s=document.createElement('div');
     s.className='sign-slot';
     s.innerHTML=`<span class="sign-idx">${String(i).padStart(2,'0')}</span>`+
@@ -982,20 +983,17 @@ let _saveTimer=null, _editingSlot=null, _state={...EMPTY};
   }
   document.querySelectorAll('.sign-input').forEach(inp=>{
     inp.addEventListener('focus',()=>{ _editingSlot=inp.dataset.slot; });
-    inp.addEventListener('blur',()=>{
-      _editingSlot=null;
-      pushState();
-    });
+    inp.addEventListener('blur',()=>{ _editingSlot=null; pushSlot(inp.dataset.slot); });
     inp.addEventListener('input',()=>{
       inp.parentElement.classList.toggle('signed',inp.value.trim().length>0);
-      _state['slot'+inp.dataset.slot]=inp.value.trim();
       updateCounter();
       clearTimeout(_saveTimer);
-      _saveTimer=setTimeout(pushState,1500);
+      _saveTimer=setTimeout(()=>pushSlot(inp.dataset.slot),1500);
     });
   });
   pullState();
   startSSE();
+  setInterval(()=>{ if(!_sseOK) pullState(); }, 20000);
 })();
 
 function showSync(s){
@@ -1011,21 +1009,43 @@ function showSync(s){
 function updateCounter(){
   const n=document.querySelectorAll('.sign-slot.signed').length;
   const c=document.getElementById('signCounter');
-  if(n===11) c.innerHTML='<em style="font-size:14px;letter-spacing:4px;">ALL AUTHENTICATED — 条约生效</em>';
-  else c.innerHTML=`AUTHENTICATED <em>${n}</em> / <em>11</em>`;
+  if(n===SLOTS) c.innerHTML='<em style="font-size:14px;letter-spacing:4px;">ALL AUTHENTICATED — 条约生效</em>';
+  else c.innerHTML=`AUTHENTICATED <em>${n}</em> / <em>${SLOTS}</em>`;
 }
 
-function applyState(data){
-  _state={...EMPTY,...data};
-  for(let i=1;i<=11;i++){
+function renderState(data){
+  for(let i=1;i<=SLOTS;i++){
     const inp=document.getElementById('slot'+i);
-    const val=_state['slot'+i]||'';
+    const val=data['slot'+i]||'';
     if(String(i)===_editingSlot) continue;
     inp.value=val;
     inp.parentElement.classList.toggle('signed',val.length>0);
   }
-  localStorage.setItem('sign_backup',JSON.stringify(_state));
   updateCounter();
+}
+
+function mergeStates(cloud, local){
+  const merged={...EMPTY};
+  for(let i=1;i<=SLOTS;i++){
+    const k='slot'+i;
+    const cv=cloud[k]||'', lv=local[k]||'';
+    merged[k]= cv||lv;
+  }
+  return merged;
+}
+
+function saveLocal(data){ localStorage.setItem('sign_backup',JSON.stringify(data)); }
+function loadLocal(){ try{return JSON.parse(localStorage.getItem('sign_backup'))||{...EMPTY};}catch(e){return{...EMPTY};} }
+
+function parseLatestMsg(txt){
+  const lines=txt.trim().split('\n').filter(Boolean);
+  for(let i=lines.length-1;i>=0;i--){
+    try{
+      const msg=JSON.parse(lines[i]);
+      return JSON.parse(msg.message);
+    }catch(e){}
+  }
+  return null;
 }
 
 function pullState(){
@@ -1033,57 +1053,74 @@ function pullState(){
   fetch(TOPIC+'/json?poll=1&since=24h')
     .then(r=>{if(!r.ok)throw 0;return r.text();})
     .then(txt=>{
-      const lines=txt.trim().split('\n').filter(Boolean);
-      if(!lines.length){
-        const bk=localStorage.getItem('sign_backup');
-        if(bk) applyState(JSON.parse(bk));
-        showSync('synced');
-        return;
+      const remote=parseLatestMsg(txt);
+      const local=loadLocal();
+      if(remote){
+        _cloud=mergeStates(remote,local);
+      }else{
+        _cloud={...local};
+        if(Object.values(_cloud).some(v=>v)) rePush();
       }
-      const last=JSON.parse(lines[lines.length-1]);
-      const data=JSON.parse(last.message);
-      applyState(data);
-      showSync('synced');
+      renderState(_cloud);
+      saveLocal(_cloud);
+      showSync(_sseOK?'live':'synced');
     })
     .catch(()=>{
-      const bk=localStorage.getItem('sign_backup');
-      if(bk) applyState(JSON.parse(bk));
+      _cloud=loadLocal();
+      renderState(_cloud);
       showSync('error');
     });
 }
 
-function pushState(){
-  for(let i=1;i<=11;i++){
-    _state['slot'+i]=document.getElementById('slot'+i).value.trim();
-  }
+function pushSlot(num){
+  const k='slot'+num;
+  const myVal=document.getElementById(k).value.trim();
   showSync('saving');
-  fetch(TOPIC,{method:'PUT',body:JSON.stringify(_state)})
+  fetch(TOPIC+'/json?poll=1&since=24h')
+    .then(r=>{if(!r.ok)throw 0;return r.text();})
+    .then(txt=>{
+      const remote=parseLatestMsg(txt)||{...EMPTY};
+      const merged=mergeStates(remote,_cloud);
+      merged[k]=myVal;
+      _cloud={...merged};
+      saveLocal(_cloud);
+      return fetch(TOPIC,{method:'PUT',body:JSON.stringify(_cloud)});
+    })
     .then(r=>{
       if(!r.ok)throw 0;
-      localStorage.setItem('sign_backup',JSON.stringify(_state));
-      showSync('synced');
+      showSync(_sseOK?'live':'synced');
     })
     .catch(()=>{
-      localStorage.setItem('sign_backup',JSON.stringify(_state));
+      _cloud[k]=myVal;
+      saveLocal(_cloud);
       showSync('error');
     });
+}
+
+function rePush(){
+  fetch(TOPIC,{method:'PUT',body:JSON.stringify(_cloud)}).catch(()=>{});
 }
 
 let _sse=null,_sseRetry=null;
 function startSSE(){
   if(_sse){try{_sse.close();}catch(e){}}
   clearTimeout(_sseRetry);
+  _sseOK=false;
   _sse=new EventSource(TOPIC+'/sse');
-  _sse.onopen=()=>showSync('live');
+  _sse.onopen=()=>{_sseOK=true; showSync('live');};
   _sse.addEventListener('message',ev=>{
     try{
       const obj=JSON.parse(ev.data);
       const data=JSON.parse(obj.message);
-      applyState(data);
+      const local=loadLocal();
+      _cloud=mergeStates(data,local);
+      renderState(_cloud);
+      saveLocal(_cloud);
       showSync('live');
     }catch(e){}
   });
   _sse.onerror=()=>{
+    _sseOK=false;
     showSync('error');
     try{_sse.close();}catch(e){}
     _sseRetry=setTimeout(startSSE,8000);
